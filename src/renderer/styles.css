@@ -128,7 +128,10 @@ input:focus-visible,
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 1px 2px 0;
+  padding: 8px 10px;
+  background: var(--panel-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card, 10px);
 }
 
 .topbar-actions {
@@ -803,6 +806,15 @@ h1 {
 .empty {
   color: var(--text-secondary);
   font-size: 12px;
+}
+
+/* Empty states in the run list sit directly on the vibrancy material, so
+   back them with a panel to stay readable over any wallpaper. */
+.run-list > .empty {
+  background: var(--panel-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card, 10px);
+  padding: 12px;
 }
 
 .detail h2 {
