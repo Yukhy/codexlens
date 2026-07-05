@@ -53,11 +53,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-When Apple signing/notarization secrets are absent, the workflow builds unsigned artifacts with:
-
-```bash
-npm run dist:mac:unsigned -- --x64 --arm64
-```
+When Apple signing/notarization secrets are absent, the workflow builds unsigned artifacts with electron-builder directly (equivalent to the local `npm run dist:mac:unsigned`, plus `--x64 --arm64`). It calls `npx electron-builder` rather than the npm script so that `workflow_dispatch` can also backfill assets for older tags whose `package.json` predates the current script names.
 
 It then uploads the DMG/ZIP assets with `gh release upload --clobber`, creating the release first only if it does not already exist. This is idempotent: it works whether the release was created by the tag push, by the GitHub web UI (as with v0.1.0), or by a previous partial run. Do not build with `--publish always`; electron-builder fails with `422 already_exists` when a published release for the tag already exists.
 
@@ -104,7 +100,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The `Release` GitHub Action runs tests, builds both Apple Silicon and Intel artifacts with `npm run dist:mac`, signs them with Developer ID, notarizes them with Apple, staples the notarization ticket, and uploads the assets to the GitHub Release.
+The `Release` GitHub Action runs tests, builds both Apple Silicon and Intel artifacts with electron-builder, signs them with Developer ID, notarizes them with Apple, staples the notarization ticket, and uploads the assets to the GitHub Release.
 
 If the signing secrets are incomplete, the workflow intentionally falls back to the unsigned release path instead of failing.
 

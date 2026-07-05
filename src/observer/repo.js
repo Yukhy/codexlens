@@ -6,7 +6,9 @@ const { promisify } = require('node:util');
 const execFileAsync = promisify(execFile);
 
 async function git(cwd, args) {
-  const { stdout } = await execFileAsync('git', ['-C', cwd, ...args], {
+  // --no-optional-locks keeps commands like `status` from refreshing the
+  // index or taking .git/index.lock, preserving the read-only guarantee.
+  const { stdout } = await execFileAsync('git', ['--no-optional-locks', '-C', cwd, ...args], {
     timeout: 2500,
     maxBuffer: 512 * 1024
   });
