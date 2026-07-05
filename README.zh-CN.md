@@ -54,6 +54,7 @@ CodexLens 不创建、不封装、不代理、也不替换任何 MCP server。**
 - 🌏 **多语言界面** — 英文、日文、中文
 - 🔒 **仅本地、只读** — 无遥测、无代理、不修改任何配置
 - ⬆️ **手动检查更新** — 在设置中查看当前版本，只有你主动点击时才会向 GitHub Releases 查询新版本
+- 🚀 **登录时自动启动** — 可在设置中开启或关闭
 - ⌨️ **命令行快照** — `npm run scan` 在终端输出同样的概览
 
 ## 安装
@@ -65,14 +66,14 @@ CodexLens 不创建、不封装、不代理、也不替换任何 MCP server。**
 3. 启动后点击菜单栏中的镜头图标即可。
 
 > [!IMPORTANT]
-> 目前的构建**未签名**（尚未获取 Apple Developer 证书），首次启动时 macOS 会弹出警告。
+> 构建**未签名**（本项目有意不加入 Apple Developer Program），因此首次启动时 macOS 会弹出警告。
 > 请打开 **系统设置 → 隐私与安全性**，滚动到底部，点击 **"仍要打开"**；也可以在终端执行：
 >
 > ```bash
 > xattr -cr /Applications/CodexLens.app
 > ```
 >
-> 每一个 DMG 都由 [GitHub Actions](.github/workflows/release.yml) 从本仓库构建，内容完全可审计。签名与公证构建已列入[路线图](#路线图)。
+> 此操作只需执行一次。每一个 DMG 都由 [GitHub Actions](.github/workflows/release.yml) 从本仓库构建，内容完全可审计。
 
 ### 从源码运行
 
@@ -132,7 +133,7 @@ CodexLens 发起的所有网络请求都由你亲手触发：点击设置中的*
 不会。没有任何遥测。唯一的网络请求是你在设置中手动触发的更新检查。
 
 **为什么 macOS 提示"无法验证开发者"？**
-因为当前构建未签名——参见[安装说明](#下载应用推荐)中两步即可解决的方法。签名计划见路线图。
+因为构建未签名（本项目不使用 Apple Developer 证书）。参见[安装说明](#下载应用推荐)中两步即可解决的方法，只需处理一次。
 
 **不用 Claude Code 也有用吗？**
 有用。CodexLens 同样可以观察 `codex exec`、Codex 应用和独立的 CLI 会话。Claude Code 与 Codex 的关联只是给 MCP 用户的加分项。
@@ -148,13 +149,11 @@ CodexLens 发起的所有网络请求都由你亲手触发：点击设置中的*
 - Claude Code 工具调用与 Codex rollout 文件之间的关联是启发式的，偶尔可能匹配错误。
 - 如果 Codex 在 MCP 运行期间不更新 rollout 文件，CodexLens 仍能显示进程／仓库状态，但无法展示详细进度。
 - 只有当 Codex 在 rollout 文件中记录了可区分的事件时，才能看到 subagent 数量。
-- 在配置 Apple Developer ID 密钥之前，发布的构建均未签名（详见[分发文档](docs/distribution.md)）。
+- 发布的构建未签名，首次启动时会出现一次 Gatekeeper 提示（详见[分发文档](docs/distribution.md)）。
 
 ## 路线图
 
-- [ ] 签名与公证构建（Apple Developer ID）
 - [ ] Homebrew cask
-- [ ] 签名构建的应用内自动更新
 - [ ] 任务停滞／失败时的可选通知
 
 有想法？欢迎[提 Issue](https://github.com/Yukhy/codexlens/issues/new/choose)——目标明确的小建议最容易落地。

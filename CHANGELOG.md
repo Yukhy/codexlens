@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Manual update check in Settings: shows the current version, queries the latest GitHub Release on demand, and offers a download link when a newer version exists. The check only runs when you click the button — never in the background.
+- Optional launch-at-login toggle in Settings (registers CodexLens as a macOS login item; available in the installed app).
 - `Check for Updates...` in the menu bar context menu now opens the in-app Settings view.
 - Per-language READMEs: `README.md` (English), `README.ja.md` (日本語), `README.zh-CN.md` (中文).
 - Issue templates, pull request template, and this changelog.

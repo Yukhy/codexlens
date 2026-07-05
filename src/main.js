@@ -173,6 +173,52 @@ ipcMain.handle('observer:openExternal', async (_event, url) => {
 
 ipcMain.handle('observer:getAppInfo', async () => ({ version: app.getVersion() }));
 
+ipcMain.handle('observer:getLoginItemSettings', async () => {
+  try {
+    return {
+      ok: true,
+      supported: app.isPackaged,
+      openAtLogin: app.getLoginItemSettings().openAtLogin
+    };
+  } catch (_error) {
+    return {
+      ok: false,
+      error: 'Login item settings unavailable',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+});
+
+ipcMain.handle('observer:setLoginItem', async (_event, enabled) => {
+  if (typeof enabled !== 'boolean') {
+    return { ok: false, error: 'Invalid value', supported: false, openAtLogin: false };
+  }
+  if (!app.isPackaged) {
+    return {
+      ok: false,
+      error: 'Not available in development mode',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+  try {
+    app.setLoginItemSettings({ openAtLogin: enabled });
+    return {
+      ok: true,
+      supported: true,
+      openAtLogin: app.getLoginItemSettings().openAtLogin
+    };
+  } catch (_error) {
+    return {
+      ok: false,
+      error: 'Login item settings unavailable',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+});
+
 ipcMain.handle('observer:checkForUpdates', async () => checkForUpdates());
 
 app.whenReady().then(() => {

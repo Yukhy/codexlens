@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('observer', {
   openLatestRelease: () => ipcRenderer.invoke('observer:openLatestRelease'),
   openExternal: (url) => ipcRenderer.invoke('observer:openExternal', url),
   getAppInfo: () => ipcRenderer.invoke('observer:getAppInfo'),
+  getLoginItemSettings: () => ipcRenderer.invoke('observer:getLoginItemSettings'),
+  setLoginItem: (enabled) => ipcRenderer.invoke('observer:setLoginItem', enabled),
   checkForUpdates: () => ipcRenderer.invoke('observer:checkForUpdates'),
   onShowSettings: (callback) => {
     if (typeof callback !== 'function') return () => {};

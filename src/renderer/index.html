@@ -72,6 +72,17 @@
         </div>
 
         <div class="settings-section">
+          <h3 data-i18n="startupTitle">Startup</h3>
+          <label class="toggle-row" for="launch-at-login">
+            <input type="checkbox" id="launch-at-login" />
+            <span>
+              <span class="toggle-label" data-i18n="launchAtLogin">Launch CodexLens at login</span>
+              <small class="toggle-hint" id="launch-at-login-hint" data-i18n="launchAtLoginHint">Starts the menu bar app automatically when you log in.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-section">
           <h3 data-i18n="updatesTitle">Updates</h3>
           <p class="settings-copy" data-i18n="updatesDescription">Check whether a newer version is available on GitHub Releases.</p>
           <p class="version-line"><span data-i18n="currentVersion">Current version</span>: <span id="current-version">—</span></p>

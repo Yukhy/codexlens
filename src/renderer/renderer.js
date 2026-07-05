@@ -9,6 +9,8 @@ let language = localStorage.getItem('observer-language') || 'en';
 let currentView = 'runs';
 let appInfo = null;
 let updateCheck = { status: 'idle' };
+let loginItem = { supported: false, openAtLogin: false, loaded: false };
+let loginItemSetting = false;
 
 const ACTIVE_POLL_MS = 3000;
 const IDLE_POLL_MS = 15000;
@@ -35,6 +37,10 @@ const I18N = {
     settingsTitle: 'Settings',
     settingsDescription: 'Language and update preferences.',
     languageTitle: 'Language',
+    startupTitle: 'Startup',
+    launchAtLogin: 'Launch CodexLens at login',
+    launchAtLoginHint: 'Starts the menu bar app automatically when you log in.',
+    launchAtLoginUnavailable: 'Available in the installed app only.',
     updatesTitle: 'Updates',
     updatesDescription: 'Check whether a newer version is available on GitHub Releases.',
     checkForUpdates: 'Check for updates',
@@ -91,6 +97,10 @@ const I18N = {
     settingsTitle: '設定',
     settingsDescription: '言語やアップデートに関する設定です。',
     languageTitle: '言語',
+    startupTitle: '起動設定',
+    launchAtLogin: 'ログイン時にCodexLensを自動起動',
+    launchAtLoginHint: 'Macへのログイン時に、メニューバーアプリを自動で起動します。',
+    launchAtLoginUnavailable: 'インストールしたアプリでのみ設定できます。',
     updatesTitle: 'アップデート',
     updatesDescription: '新しいバージョンが公開されていないか確認できます。',
     checkForUpdates: 'アップデートを確認',
@@ -147,6 +157,10 @@ const I18N = {
     settingsTitle: '设置',
     settingsDescription: '语言与更新相关设置。',
     languageTitle: '语言',
+    startupTitle: '启动',
+    launchAtLogin: '登录时自动启动 CodexLens',
+    launchAtLoginHint: '登录 Mac 时自动启动菜单栏应用。',
+    launchAtLoginUnavailable: '仅安装版应用可用。',
     updatesTitle: '更新',
     updatesDescription: '检查 GitHub Releases 上是否有新版本。',
     checkForUpdates: '检查更新',
@@ -255,6 +269,8 @@ const elements = {
   appViews: Array.from(document.querySelectorAll('.app-view')),
   settingsView: document.getElementById('settings-view'),
   currentVersion: document.getElementById('current-version'),
+  launchAtLogin: document.getElementById('launch-at-login'),
+  launchAtLoginHint: document.getElementById('launch-at-login-hint'),
   checkForUpdates: document.getElementById('check-for-updates'),
   updateStatus: document.getElementById('update-status'),
   openLatestRelease: document.getElementById('open-latest-release'),
@@ -406,6 +422,14 @@ function renderUpdateStatus() {
       button(t('openLatestRelease'), () => window.observer.openLatestRelease())
     );
   }
+}
+
+function renderLoginItem() {
+  elements.launchAtLogin.checked = Boolean(loginItem.openAtLogin);
+  elements.launchAtLogin.disabled = loginItemSetting || !loginItem.loaded || !loginItem.supported;
+  elements.launchAtLoginHint.textContent = loginItem.loaded && !loginItem.supported
+    ? t('launchAtLoginUnavailable')
+    : t('launchAtLoginHint');
 }
 
 function applyTranslations() {
@@ -571,6 +595,7 @@ function render() {
   setText(elements.processCount, summary.codexMcpProcesses || 0);
   renderFilterButtons();
   renderUpdateStatus();
+  renderLoginItem();
   renderRunList();
   const selected = filteredRuns().find((run) => run.id === selectedId) || null;
   renderDetail(selected);
@@ -585,10 +610,25 @@ async function loadAppInfo() {
   renderUpdateStatus();
 }
 
+async function loadLoginItemSettings() {
+  try {
+    const result = await window.observer.getLoginItemSettings();
+    loginItem = {
+      supported: Boolean(result?.supported),
+      openAtLogin: Boolean(result?.openAtLogin),
+      loaded: true
+    };
+  } catch (_error) {
+    loginItem = { supported: false, openAtLogin: false, loaded: true };
+  }
+  renderLoginItem();
+}
+
 function openSettingsView() {
   currentView = 'settings';
   render();
   loadAppInfo();
+  loadLoginItemSettings();
 }
 
 function shouldPollFast() {
@@ -626,6 +666,25 @@ elements.backToRuns.addEventListener('click', () => {
 });
 elements.openLatestRelease.addEventListener('click', () => {
   window.observer.openLatestRelease();
+});
+elements.launchAtLogin.addEventListener('change', async () => {
+  const enabled = elements.launchAtLogin.checked;
+  loginItemSetting = true;
+  renderLoginItem();
+  try {
+    const result = await window.observer.setLoginItem(enabled);
+    if (result?.ok) {
+      loginItem = { supported: true, openAtLogin: Boolean(result.openAtLogin), loaded: true };
+    } else {
+      // The write failed; re-read the OS state instead of guessing.
+      await loadLoginItemSettings();
+    }
+  } catch (_error) {
+    await loadLoginItemSettings();
+  } finally {
+    loginItemSetting = false;
+    renderLoginItem();
+  }
 });
 elements.checkForUpdates.addEventListener('click', async () => {
   updateCheck = { status: 'checking' };

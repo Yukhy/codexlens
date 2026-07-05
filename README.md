@@ -54,6 +54,7 @@ It creates, wraps, proxies, and replaces **nothing**. CodexLens only reads sessi
 - 🌏 **Multilingual UI** — English, 日本語, 中文
 - 🔒 **Local-only & read-only** — no telemetry, no proxying, no config changes
 - ⬆️ **Manual update check** — see your version in Settings and check GitHub Releases only when *you* click
+- 🚀 **Launch at login** — optional; flip the toggle in Settings
 - ⌨️ **CLI snapshot** — `npm run scan` prints the same overview in your terminal
 
 ## Install
@@ -65,14 +66,14 @@ It creates, wraps, proxies, and replaces **nothing**. CodexLens only reads sessi
 3. Launch it and click the lens icon in your menu bar.
 
 > [!IMPORTANT]
-> Current builds are **unsigned** (no Apple Developer certificate yet), so macOS will warn on first launch.
+> CodexLens ships **unsigned** — this project intentionally doesn't join the Apple Developer Program. macOS will therefore warn once on first launch.
 > Go to **System Settings → Privacy & Security**, scroll down, and click **"Open Anyway"** — or run:
 >
 > ```bash
 > xattr -cr /Applications/CodexLens.app
 > ```
 >
-> Every DMG is built from this repository by [GitHub Actions](.github/workflows/release.yml), so you can audit exactly what goes into it. Signed and notarized builds are on the [roadmap](#roadmap).
+> This is a one-time step. Every DMG is built from this repository by [GitHub Actions](.github/workflows/release.yml), so you can audit exactly what goes into it.
 
 ### Run from source
 
@@ -132,7 +133,7 @@ No. CodexLens is independent and unofficial. It uses no private APIs — it read
 No. There is no telemetry. The only network access is the update check you trigger manually in Settings.
 
 **Why does macOS say the app can't be verified?**
-Builds are currently unsigned — see the [install notes](#download-the-app-recommended) for the two-click workaround, and the roadmap for signing plans.
+Builds are unsigned because the project doesn't use an Apple Developer certificate. See the [install notes](#download-the-app-recommended) for the two-click workaround — you only need it once.
 
 **Do I need Claude Code for it to be useful?**
 No. CodexLens also watches plain `codex exec`, Codex app, and standalone CLI sessions. The Claude Code ↔ Codex correlation is a bonus for MCP users.
@@ -148,13 +149,11 @@ It's heuristic: thread IDs, working directories, and timing. It's right in the c
 - Correlation between Claude Code tool calls and Codex rollout files is heuristic-based and can occasionally mismatch.
 - If Codex doesn't update its rollout files while running under MCP, CodexLens can still show process/repo state but not detailed progress.
 - Subagent counts appear only when Codex records distinguishable events in rollout files.
-- Releases are unsigned until Apple Developer ID secrets are configured ([distribution details](docs/distribution.md)).
+- Releases are unsigned, so macOS shows a one-time Gatekeeper prompt on first launch ([distribution details](docs/distribution.md)).
 
 ## Roadmap
 
-- [ ] Signed & notarized builds (Apple Developer ID)
 - [ ] Homebrew cask
-- [ ] In-app update installation for signed builds
 - [ ] Opt-in notifications when a run stalls or fails
 
 Have an idea? [Open an issue](https://github.com/Yukhy/codexlens/issues/new/choose) — small, sharp feature requests are the easiest to ship.
