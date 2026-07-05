@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:;" />
+    <title>CodexLens</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1 data-i18n="appTitle">CodexLens</h1>
+          <p id="generated-at">Loading local activity</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="settings" class="icon-button" title="Settings" data-i18n-title="settings">⚙</button>
+          <button id="refresh" class="icon-button" title="Refresh" data-i18n-title="refresh">↻</button>
+        </div>
+      </header>
+
+      <section class="summary app-view" id="summary-view" aria-label="Summary">
+        <div class="summary-card summary-active"><span id="active-count">0</span><label data-i18n="active">Active</label></div>
+        <div class="summary-card summary-stalled"><span id="stalled-count">0</span><label data-i18n="stalled">Stalled</label></div>
+        <div class="summary-card summary-failed"><span id="failed-count">0</span><label data-i18n="failed">Failed</label></div>
+        <div class="summary-card summary-process"><span id="process-count">0</span><label data-i18n="mcpPids">MCP PIDs</label></div>
+      </section>
+
+      <section class="filters app-view" id="filters-view" aria-label="Filters">
+        <div class="filter-buttons" role="group" aria-label="Run status filter">
+          <button class="filter-button selected" data-filter="active" data-i18n="filterActive" type="button">Active</button>
+          <button class="filter-button" data-filter="attention" data-i18n="filterAttention" type="button">Attention</button>
+          <button class="filter-button" data-filter="completed" data-i18n="filterCompleted" type="button">Completed</button>
+          <button class="filter-button" data-filter="all" data-i18n="filterAll" type="button">All</button>
+        </div>
+        <input id="run-filter" class="filter-input" type="search" placeholder="Filter path, job, source" data-i18n-placeholder="filterPlaceholder" />
+      </section>
+
+      <section class="layout app-view" id="main-view">
+        <div class="run-list" id="run-list" aria-label="Observed runs"></div>
+        <aside class="detail" id="detail" aria-label="Run detail">
+          <p class="empty" data-i18n="selectRun">Select a run to inspect local status.</p>
+        </aside>
+      </section>
+
+      <section class="settings-view hidden" id="settings-view" aria-label="Settings">
+        <div class="settings-head">
+          <div>
+            <h2 data-i18n="settingsTitle">Settings</h2>
+            <p data-i18n="settingsDescription">Choose how the observer is displayed.</p>
+          </div>
+          <button id="back-to-runs" class="secondary-button" type="button" data-i18n="back">Back</button>
+        </div>
+
+        <div class="settings-section">
+          <h3 data-i18n="languageTitle">Language</h3>
+          <div class="language-options" role="group" aria-label="Language">
+            <button class="language-button selected" data-language="en" type="button">
+              <span>English</span>
+              <small>EN</small>
+            </button>
+            <button class="language-button" data-language="ja" type="button">
+              <span>日本語</span>
+              <small>日</small>
+            </button>
+            <button class="language-button" data-language="zh" type="button">
+              <span>中文</span>
+              <small>中</small>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

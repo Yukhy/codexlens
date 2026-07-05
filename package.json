@@ -1,0 +1,43 @@
+{
+  "name": "codexlens",
+  "version": "0.1.0",
+  "description": "Read-only macOS menu bar lens for local Codex and Claude Code activity.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "open:mac": "open -n -a \"$PWD/node_modules/electron/dist/Electron.app\" --args \"$PWD\"",
+    "scan": "node src/cli.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "agent-observability",
+    "ai-agents",
+    "claude",
+    "claude-code",
+    "codex",
+    "codex-cli",
+    "codex-mcp",
+    "electron",
+    "macos",
+    "menubar",
+    "mcp",
+    "mcp-server",
+    "openai-codex"
+  ],
+  "author": "Yukhy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yukhy/codexlens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yukhy/codexlens/issues"
+  },
+  "homepage": "https://github.com/Yukhy/codexlens#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7"
+  }
+}
