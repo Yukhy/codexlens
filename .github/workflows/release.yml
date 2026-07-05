@@ -4,10 +4,21 @@ on:
   push:
     tags:
       - "v*"
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing v* tag to build and upload assets for"
+        required: true
+        type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   mac:
@@ -15,8 +26,34 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Resolve release tag
+        id: tag
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          case "$EVENT_NAME" in
+            workflow_dispatch) tag="$INPUT_TAG" ;;
+            release) tag="$RELEASE_TAG" ;;
+            *) tag="$REF_NAME" ;;
+          esac
+
+          if [[ ! "$tag" =~ ^v[0-9] ]]; then
+            echo "::error title=Invalid tag::Expected a v* version tag, got '$tag'."
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
       - name: Check out
         uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -68,10 +105,9 @@ jobs:
             echo "::notice title=Release mode::Apple signing/notarization secrets are incomplete or absent. Building an unsigned macOS release."
           fi
 
-      - name: Build, sign, notarize, and publish
+      - name: Build signed and notarized artifacts
         if: steps.release_mode.outputs.mode == 'signed'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -80,10 +116,29 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        run: npm run release:mac -- --x64 --arm64
+        run: npm run dist:mac -- --x64 --arm64
 
-      - name: Build unsigned release and publish
+      - name: Build unsigned artifacts
         if: steps.release_mode.outputs.mode == 'unsigned'
+        run: npm run dist:mac:unsigned -- --x64 --arm64
+
+      - name: Upload assets to GitHub Release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release:mac:unsigned -- --x64 --arm64
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+          assets=(release/*.dmg release/*.zip release/*.blockmap)
+          if [[ ${#assets[@]} -eq 0 ]]; then
+            echo "::error title=No artifacts::electron-builder produced no DMG/ZIP files in release/."
+            exit 1
+          fi
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes --verify-tag
+          fi
+
+          gh release upload "$TAG" "${assets[@]}" --clobber --repo "$GITHUB_REPOSITORY"
