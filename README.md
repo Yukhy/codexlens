@@ -108,7 +108,7 @@ OpenAI Codex, Codex CLI, Codex MCP, Claude Code, MCP server, AI agent observabil
 
 ## Support
 
-If CodexLens saves you debugging time, consider supporting the project from GitHub's Sponsor button.
+If CodexLens saves you debugging time, consider supporting the project from GitHub's Sponsor button or [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e).
 
 ## Disclaimer
 
@@ -225,7 +225,7 @@ OpenAI Codex、Codex CLI、Codex MCP、Claude Code、MCP server、AI agent obser
 
 ## 支援
 
-CodexLensがデバッグ時間の節約に役立った場合は、GitHubのSponsorボタンから支援できます。
+CodexLensがデバッグ時間の節約に役立った場合は、GitHubのSponsorボタンまたは [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e) から支援できます。
 
 ## 免責
 
@@ -342,7 +342,7 @@ OpenAI Codex、Codex CLI、Codex MCP、Claude Code、MCP server、AI agent obser
 
 ## 支持
 
-如果 CodexLens 帮你节省了调试时间，可以通过 GitHub 的 Sponsor 按钮支持这个项目。
+如果 CodexLens 帮你节省了调试时间，可以通过 GitHub 的 Sponsor 按钮或 [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e) 支持这个项目。
 
 ## 免责声明
 
