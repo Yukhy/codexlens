@@ -1,0 +1,29 @@
+name: 💡 Feature request
+description: Suggest an idea or improvement for CodexLens
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation where you miss this feature.
+      placeholder: When several Codex runs work in the same repo, I can't tell...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This feature keeps CodexLens local-only and read-only (no telemetry, no writing to session files).
+          required: true

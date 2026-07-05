@@ -74,7 +74,12 @@
         <div class="settings-section">
           <h3 data-i18n="updatesTitle">Updates</h3>
           <p class="settings-copy" data-i18n="updatesDescription">Open the latest GitHub Release to download a newer build.</p>
-          <button id="open-latest-release" class="secondary-button" type="button" data-i18n="openLatestRelease">Open latest release</button>
+          <p class="settings-copy version-line"><span data-i18n="currentVersion">Current version</span>: <span id="app-version"></span></p>
+          <div class="settings-button-row">
+            <button id="check-updates" class="secondary-button" type="button" data-i18n="checkForUpdates">Check for updates</button>
+            <button id="open-latest-release" class="secondary-button" type="button" data-i18n="openLatestRelease">Open latest release</button>
+          </div>
+          <p id="update-status" class="settings-copy" role="status"></p>
         </div>
       </section>
     </main>

@@ -1,446 +1,175 @@
-# CodexLens
+<p align="center">
+  <img src="docs/assets/logo.png" width="128" alt="CodexLens logo" />
+</p>
 
-[![CI](https://github.com/Yukhy/codexlens/actions/workflows/ci.yml/badge.svg)](https://github.com/Yukhy/codexlens/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![macOS](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](#requirements)
-[![Local Only](https://img.shields.io/badge/privacy-local--only-2ea44f.svg)](#privacy)
+<h1 align="center">CodexLens</h1>
 
-**English** | [日本語](#日本語) | [中文](#中文)
+<p align="center">
+  <b>See what your AI coding agents are actually doing — right from the macOS menu bar.</b>
+</p>
 
-CodexLens is a local, read-only macOS menu bar app for watching OpenAI Codex activity, especially when Claude Code calls the official `codex mcp-server`.
+<p align="center">
+  <a href="https://github.com/Yukhy/codexlens/actions/workflows/ci.yml"><img src="https://github.com/Yukhy/codexlens/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/Yukhy/codexlens/releases/latest"><img src="https://img.shields.io/github/v/release/Yukhy/codexlens?label=release" alt="Latest release" /></a>
+  <a href="https://github.com/Yukhy/codexlens/releases"><img src="https://img.shields.io/github/downloads/Yukhy/codexlens/total?label=downloads" alt="Downloads" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="#-requirements"><img src="https://img.shields.io/badge/platform-macOS-lightgrey.svg" alt="macOS" /></a>
+  <a href="#-privacy"><img src="https://img.shields.io/badge/privacy-local--only-2ea44f.svg" alt="Local only" /></a>
+</p>
 
-It is built for people who use Claude Code plus Codex and want a quick answer to:
+<p align="center">
+  <b>English</b> | <a href="README.ja.md">日本語</a> | <a href="README.zh-CN.md">中文</a>
+</p>
 
-- Is Codex still running?
-- Which repo/path is it working in?
-- Was it invoked through Claude Code MCP, Codex exec, or another Codex session?
-- Is it active, idle, stalled, failed, or complete?
+---
 
-CodexLens does not create, wrap, proxy, or replace an MCP server. It observes local files and processes that already exist on your machine.
+CodexLens is a **local, read-only macOS menu bar app** that watches OpenAI Codex activity — especially when Claude Code drives Codex through the official `codex mcp-server`.
 
-## Screenshots
+If you run Claude Code + Codex together, you know the feeling: you fire off a delegation, and then… silence. Is Codex still working? Did it stall? Which repo is it touching? CodexLens answers those questions at a glance, without changing how Claude Code or Codex work.
 
 | Activity overview | Language settings |
 | --- | --- |
 | ![CodexLens activity overview showing active Codex and Claude MCP runs](docs/assets/codexlens-overview.png) | ![CodexLens settings screen with language options](docs/assets/codexlens-settings.png) |
 
-## What You See
+## ✨ Features
 
-- Summary counters for active, stalled, failed, and detected Codex MCP processes.
-- Filterable run cards with source labels such as Claude MCP, Codex exec, and Codex App.
-- Working directory, branch, changed file count, current event, and last activity time.
-- A detail pane for the selected run, including paths to the related Codex rollout or Claude log.
-- A settings screen for switching between English, Japanese, and Chinese.
+- 🔍 **Live run cards** — every detected Codex run with status: active, idle, stalled, failed, or complete
+- 🏷️ **Source labels** — see whether a run came from Claude MCP, `codex exec`, Codex MCP, the Codex app, or a standalone session
+- 📂 **Repo context** — working directory, branch, changed file count, current event, last activity time
+- 🧭 **Detail pane** — jump to the related Codex rollout file or Claude Code log for any run
+- 🎛️ **Filters** — active / attention / completed / all, plus free-text filtering
+- 🌏 **Multilingual UI** — English, 日本語, 中文
+- 🔄 **Manual update check** — one click compares your version against the latest GitHub release (only when you click; no background checks)
+- 💻 **Terminal mode** — `npm run scan` prints the same snapshot in your terminal
+- 🔒 **Local-only and read-only** — no telemetry, no proxying, no MCP server wrapping
 
-## Features
+## 🧐 Why CodexLens?
 
-- macOS menu bar lens icon with a compact popover UI.
-- Active jobs shown by default, with filters for active, attention, completed, and all runs.
-- Source labels for Claude MCP, Codex exec, Codex MCP, Codex App, and standalone Codex sessions.
-- Repository path, branch, changed file count, current event, and last activity time.
-- Local-only scanner for Codex rollout files, Claude Code project logs, `codex mcp-server` processes, and lightweight Git status.
-- Multilingual UI: English, Japanese, and Chinese.
-- Terminal snapshot with `npm run scan`.
+Claude Code and Codex are powerful together, but Codex MCP work is opaque while it runs. CodexLens is a small observability layer for local AI agent sessions:
 
-## Why
+- It **does not** create, wrap, proxy, or replace an MCP server.
+- It **only observes** files and processes that already exist on your machine.
+- It answers "is Codex alive, where, and how far along?" in one glance at your menu bar.
 
-Claude Code and Codex are powerful together, but Codex MCP work can feel opaque while it is running. CodexLens gives you a small observability layer for local AI agent sessions without changing the way Claude Code or Codex works.
+## 📦 Install
 
-## Privacy
+### Download (recommended)
 
-CodexLens is local-only and read-only.
+1. Grab the latest `.dmg` from **[GitHub Releases](https://github.com/Yukhy/codexlens/releases/latest)**.
+2. Open the DMG and drag **CodexLens** into **Applications**.
+3. Click the lens icon in your menu bar.
 
-It reads:
+> [!IMPORTANT]
+> **First launch on an unsigned build:** current releases are not yet notarized by Apple, so macOS Gatekeeper will warn you. To open the app anyway:
+> - Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**, or
+> - run: `xattr -dr com.apple.quarantine /Applications/CodexLens.app`
+>
+> The app is fully open source — you can audit exactly what it does, or build it yourself below.
 
-- `~/.codex/session_index.jsonl`
-- `~/.codex/sessions/**/*.jsonl`
-- `~/.claude/projects/**/*.jsonl`
+### From source
+
+```bash
+git clone https://github.com/Yukhy/codexlens.git
+cd codexlens
+npm install
+npm run open:mac
+```
+
+For a terminal snapshot instead of the menu bar UI:
+
+```bash
+npm run scan
+```
+
+## 🔧 How it works
+
+CodexLens periodically scans local session artifacts and correlates them heuristically (Codex thread ids + working directories + timing):
+
+- `~/.codex/session_index.jsonl` and `~/.codex/sessions/**/*.jsonl` — Codex rollout files
+- `~/.claude/projects/**/*.jsonl` — Claude Code project logs
 - local `claude`, `codex mcp-server`, and `codex app-server` process labels
 - lightweight Git status for detected working directories
 
-It does not:
+## 🔒 Privacy
+
+CodexLens is local-only and read-only. It never sends telemetry or session data anywhere.
+
+The **only** network requests it ever makes are ones you trigger yourself:
+
+- clicking **Check for updates** calls the public GitHub Releases API once to compare versions
+- clicking **Open latest release** opens your browser
+
+It does **not**:
 
 - read `~/.codex/auth.json`
-- send telemetry or session data over the network
 - display full prompt text or tool arguments by default
 - inspect the private stdio pipe between Claude Code and `codex mcp-server`
 - modify Claude Code, Codex, MCP configuration, Git repositories, or session files
 
-CodexLens can open the latest GitHub Release in your browser when you click an update link. It does not perform background update checks.
+CodexLens may display Codex thread titles from `~/.codex/session_index.jsonl` because they help identify runs. Be mindful when sharing screenshots if titles or paths contain sensitive project names.
 
-CodexLens may display Codex thread titles from `~/.codex/session_index.jsonl` when they are available, because those titles are useful for identifying a run. Avoid sharing screenshots if thread titles or local paths contain sensitive project names.
-
-## Requirements
+## 📋 Requirements
 
 - macOS
-- Node.js 20 or newer
-- npm
-- Claude Code and/or OpenAI Codex local session files, if you want live activity to appear
+- For the downloadable app: nothing else
+- From source: Node.js 20+ and npm
+- Claude Code and/or OpenAI Codex session files, if you want live activity to appear
 
-## Install And Run
+## ⚠️ Current limits
 
-### Downloadable App
+- Correlation is heuristic-based; unusual setups may occasionally mislabel a run's source.
+- If Codex rollout files do not update while official MCP is running, CodexLens shows process/repo state but not detailed progress.
+- Subagent counts appear only when Codex records distinguishable events in rollout files.
+- Public releases are unsigned until Apple Developer ID secrets are configured; automatic in-app update *installation* stays disabled for unsigned builds (the manual check still works).
 
-The release pipeline publishes unsigned macOS DMG/ZIP artifacts by default, with no Apple Developer secrets required. After the first `v*` release is published, download the DMG from [GitHub Releases](https://github.com/Yukhy/codexlens/releases) and drag CodexLens to Applications.
+See [docs/distribution.md](docs/distribution.md) for the release pipeline, signing, and Homebrew cask plans.
 
-If Apple Developer ID secrets are configured later, the same workflow switches to signed and notarized artifacts. Release maintainers can follow [Distribution](docs/distribution.md) for unsigned releases, optional signing, update behavior, and Homebrew cask preparation.
+## 🗺️ Project structure
 
-### From Source
+- `src/main.js` — Electron menu bar app
+- `src/observer/` — read-only scanner and correlator
+- `src/renderer/` — popover UI
+- `src/update.js` — manual update check against GitHub Releases
+- `src/cli.js` — terminal snapshot (`npm run scan`)
+- `scripts/capture-screenshots.js` — regenerates README screenshots from synthetic demo data
+- `test/` — JSONL parsing, Claude/Codex extraction, and correlation tests
+
+## 🤝 Contributing
+
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Please never include raw session logs, prompts, or private paths in issues.
 
 ```bash
-git clone https://github.com/Yukhy/codexlens.git
-cd codexlens
 npm install
-npm run open:mac
-```
-
-Click the lens icon in the macOS menu bar to open the panel.
-
-For a terminal snapshot:
-
-```bash
+npm test
 npm run scan
 ```
 
-For development:
+## ☕ Support
 
-```bash
-npm test
-npm run screenshots
-npm start
-```
+CodexLens is free, open source, and built in spare time between agent runs.
 
-## Current Limits
+If it has ever saved you from staring at a silent terminal wondering *"is Codex still alive?"* — that's exactly the moment it was built for. You can keep the coffee (and the commits) flowing:
 
-- Correlation is heuristic-based. CodexLens uses Codex thread ids, working directories, and timing to connect Claude Code tool calls with Codex rollout files.
-- If Codex rollout files do not update while official MCP is running, CodexLens can still show process/repo state but not detailed progress.
-- Subagent counts are only visible when Codex records distinguishable events in rollout files.
-- Default public releases are unsigned unless Apple Developer ID secrets are configured.
-- Automatic in-app update installation is not enabled for unsigned macOS builds. Use Settings or the menu bar context menu to open the latest GitHub Release.
+<p>
+  <a href="https://buymeacoffee.com/yukhy0119e"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="42" alt="Buy Me A Coffee" /></a>
+  &nbsp;
+  <a href="https://github.com/sponsors/Yukhy"><img src="https://img.shields.io/badge/GitHub%20Sponsors-%E2%9D%A4-ea4aaa?logo=githubsponsors&style=for-the-badge" height="28" alt="GitHub Sponsors" /></a>
+</p>
 
-## Project Structure
+Other free ways to help:
 
-- `src/main.js` creates the Electron menu bar app.
-- `src/assets/codexlensTemplate.png` and `src/assets/codexlensTemplate@2x.png` are macOS template tray icons.
-- `src/assets/codexlens-menubar.svg` is the editable icon source.
-- `src/observer/` contains the read-only scanner and correlator.
-- `src/renderer/` contains the popover UI.
-- `src/cli.js` prints the same snapshot in the terminal.
-- `build/` contains the app icon and macOS signing entitlements.
-- `scripts/capture-screenshots.js` regenerates README screenshots with synthetic demo data.
-- `.github/workflows/release.yml` builds macOS releases from `v*` tags. It publishes unsigned artifacts by default and switches to signed/notarized artifacts when Apple secrets are present.
-- `docs/assets/` contains screenshots used by this README.
-- `docs/distribution.md` explains unsigned releases, optional Developer ID signing, update behavior, and Homebrew cask preparation.
-- `test/` covers the JSONL parsing, Claude Code extraction, Codex rollout parsing, and correlation logic.
+- ⭐ **Star this repo** — it genuinely helps other Claude Code + Codex users find it
+- 🐛 [Report a bug or request a feature](https://github.com/Yukhy/codexlens/issues)
+- 📣 Share a screenshot of your agent fleet (minus the secret project names 😉)
 
-## Keywords
+## ⭐ Star history
 
-OpenAI Codex, Codex CLI, Codex MCP, Claude Code, MCP server, AI agent observability, local agent monitor, macOS menu bar, Electron.
+<a href="https://star-history.com/#Yukhy/codexlens&Date">
+  <img src="https://api.star-history.com/svg?repos=Yukhy/codexlens&type=Date" alt="Star History Chart" width="600" />
+</a>
 
-## Support
+## 📄 License & disclaimer
 
-If CodexLens saves you debugging time, consider supporting the project from GitHub's Sponsor button or [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e).
-
-## Disclaimer
+MIT — see [LICENSE](LICENSE).
 
 CodexLens is an independent, unofficial tool. It is not affiliated with OpenAI or Anthropic.
-
-## License
-
-MIT
-
----
-
-# 日本語
-
-[English](#codexlens) | **日本語** | [中文](#中文)
-
-CodexLensは、OpenAI Codexのローカル活動を確認するための、読み取り専用macOSメニューバーアプリです。特に、Claude Codeが公式の `codex mcp-server` を呼び出しているときに、裏で何が動いているのかを素早く見るために作っています。
-
-Claude Code + Codexを使っているときに、次のことをすぐ確認できます。
-
-- Codexはまだ動いているのか
-- どのリポジトリ/パスで動いているのか
-- Claude Code MCP、Codex exec、その他のCodexセッションのどれから呼ばれたのか
-- 状態は稼働中、待機、停止気味、失敗、完了のどれか
-
-CodexLensはMCPサーバーを作成、ラップ、プロキシ、置換しません。ローカルに既に存在するファイルとプロセスを観測するだけです。
-
-## スクリーンショット
-
-| アクティビティ概要 | 言語設定 |
-| --- | --- |
-| ![CodexLensでActiveなCodexとClaude MCP実行を一覧表示している画面](docs/assets/codexlens-overview.png) | ![CodexLensの言語設定画面](docs/assets/codexlens-settings.png) |
-
-## 見えるもの
-
-- Active、停止気味、失敗、検出中のCodex MCPプロセス数のサマリー
-- Claude MCP、Codex exec、Codex Appなどの呼び出し元ラベル付きジョブカード
-- 作業ディレクトリ、ブランチ、変更ファイル数、現在のイベント、最終更新時刻
-- 選択したジョブの詳細と、関連するCodex rolloutまたはClaudeログへの導線
-- 英語、日本語、中文を切り替える設定画面
-
-## 機能
-
-- macOSメニューバーのレンズアイコンとコンパクトなポップオーバーUI
-- デフォルトではActiveなジョブを表示し、Active、Attention、Completed、Allでフィルター可能
-- Claude MCP、Codex exec、Codex MCP、Codex App、単独Codexセッションの呼び出し元ラベル
-- リポジトリパス、ブランチ、変更ファイル数、現在のイベント、最終更新時刻の表示
-- Codex rolloutファイル、Claude Code project log、`codex mcp-server` プロセス、軽量なGit状態をローカルで読み取り
-- UIは英語、日本語、中文に対応
-- `npm run scan` によるターミナルスナップショット
-
-## なぜ作ったか
-
-Claude CodeとCodexの組み合わせは強力ですが、Codex MCP経由の作業は完了するまで見えづらいことがあります。CodexLensは、Claude CodeやCodexの動作を変えずに、ローカルAIエージェントセッションの小さな可視化レイヤーを提供します。
-
-## プライバシー
-
-CodexLensはローカル専用・読み取り専用です。
-
-読み取るもの:
-
-- `~/.codex/session_index.jsonl`
-- `~/.codex/sessions/**/*.jsonl`
-- `~/.claude/projects/**/*.jsonl`
-- ローカルの `claude`、`codex mcp-server`、`codex app-server` のプロセスラベル
-- 検出した作業ディレクトリの軽量なGit状態
-
-行わないこと:
-
-- `~/.codex/auth.json` を読まない
-- テレメトリやセッションデータをネットワーク送信しない
-- デフォルトではプロンプト全文やツール引数を表示しない
-- Claude Codeと `codex mcp-server` のprivate stdio pipeを覗かない
-- Claude Code、Codex、MCP設定、Gitリポジトリ、セッションファイルを変更しない
-
-アップデートリンクをクリックした場合、CodexLensはブラウザで最新GitHub Releaseを開けます。バックグラウンドでの更新確認は行いません。
-
-利用可能な場合、CodexLensは `~/.codex/session_index.jsonl` のCodexスレッドタイトルを表示することがあります。実行中のジョブを識別するためです。スレッドタイトルやローカルパスに機密プロジェクト名が含まれる場合は、スクリーンショット共有に注意してください。
-
-## 必要環境
-
-- macOS
-- Node.js 20以上
-- npm
-- ライブ活動を表示したい場合は、Claude CodeまたはOpenAI Codexのローカルセッションファイル
-
-## インストールと起動
-
-### ダウンロード版
-
-Apple Developer Secretsなしで、未署名のmacOS DMG/ZIPを公開するリリースパイプラインを設定済みです。最初の `v*` リリース公開後は、[GitHub Releases](https://github.com/Yukhy/codexlens/releases) からDMGをダウンロードし、CodexLensをApplicationsへドラッグして使えます。
-
-将来Apple Developer IDのSecretsを設定した場合は、同じworkflowが署名/notarize済み成果物に切り替わります。未署名リリース、任意の署名、アップデート導線、Homebrew cask準備は [Distribution](docs/distribution.md) を参照してください。
-
-### ソースから起動
-
-```bash
-git clone https://github.com/Yukhy/codexlens.git
-cd codexlens
-npm install
-npm run open:mac
-```
-
-macOSメニューバーのレンズアイコンをクリックするとパネルが開きます。
-
-ターミナルでスナップショットを見る場合:
-
-```bash
-npm run scan
-```
-
-開発時:
-
-```bash
-npm test
-npm run screenshots
-npm start
-```
-
-## 現在の制限
-
-- 関連付けはヒューリスティックです。CodexLensはCodex thread id、作業ディレクトリ、時刻を使ってClaude Codeのツール呼び出しとCodex rolloutファイルを紐付けます。
-- 公式MCP実行中にCodex rolloutファイルが更新されない場合、プロセスやリポジトリ状態は表示できますが、詳細な進捗は表示できません。
-- サブエージェント数は、Codexがrolloutファイル内に区別可能なイベントを記録している場合に限って見えます。
-- 公開リリースは、Apple Developer IDのSecretsを設定しない限り未署名です。
-- 未署名macOSビルドでは、アプリ内の自動インストール型アップデートは有効化していません。設定画面またはメニューバーのコンテキストメニューから最新GitHub Releaseを開いてください。
-
-## プロジェクト構成
-
-- `src/main.js`: Electronメニューバーアプリ
-- `src/assets/codexlensTemplate.png` と `src/assets/codexlensTemplate@2x.png`: macOS template tray icon
-- `src/assets/codexlens-menubar.svg`: 編集用アイコンソース
-- `src/observer/`: 読み取り専用スキャナーと相関ロジック
-- `src/renderer/`: ポップオーバーUI
-- `src/cli.js`: 同じスナップショットをターミナルに出力
-- `build/`: アプリアイコンとmacOS署名用entitlements
-- `scripts/capture-screenshots.js`: 合成デモデータでREADME用スクリーンショットを再生成
-- `.github/workflows/release.yml`: `v*` タグからmacOSリリースを作成。通常は未署名、Apple Secretsがある場合は署名/notarize済みに切り替え
-- `docs/assets/`: READMEで使うスクリーンショット
-- `docs/distribution.md`: 未署名リリース、任意のDeveloper ID署名、アップデート導線、Homebrew cask準備の手順
-- `test/`: JSONLパース、Claude Code抽出、Codex rolloutパース、相関ロジックのテスト
-
-## キーワード
-
-OpenAI Codex、Codex CLI、Codex MCP、Claude Code、MCP server、AI agent observability、local agent monitor、macOS menu bar、Electron。
-
-## 支援
-
-CodexLensがデバッグ時間の節約に役立った場合は、GitHubのSponsorボタンまたは [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e) から支援できます。
-
-## 免責
-
-CodexLensは独立した非公式ツールです。OpenAIまたはAnthropicとは関係ありません。
-
-## ライセンス
-
-MIT
-
----
-
-# 中文
-
-[English](#codexlens) | [日本語](#日本語) | **中文**
-
-CodexLens 是一个本地、只读的 macOS 菜单栏应用，用来观察 OpenAI Codex 的活动，尤其适合 Claude Code 调用官方 `codex mcp-server` 的场景。
-
-如果你同时使用 Claude Code 和 Codex，CodexLens 可以快速回答这些问题：
-
-- Codex 还在运行吗？
-- 它正在哪个仓库/路径里工作？
-- 它是通过 Claude Code MCP、Codex exec，还是其他 Codex 会话启动的？
-- 当前状态是运行中、空闲、停滞、失败，还是已完成？
-
-CodexLens 不会创建、封装、代理或替换 MCP server。它只观察你机器上已经存在的本地文件和进程。
-
-## 截图
-
-| 活动概览 | 语言设置 |
-| --- | --- |
-| ![CodexLens 活动概览，显示正在运行的 Codex 和 Claude MCP 任务](docs/assets/codexlens-overview.png) | ![CodexLens 语言设置界面](docs/assets/codexlens-settings.png) |
-
-## 可以看到什么
-
-- Active、停滞、失败以及检测到的 Codex MCP 进程数量
-- 带有 Claude MCP、Codex exec、Codex App 等来源标签的任务卡片
-- 工作目录、分支、变更文件数、当前事件和最后活动时间
-- 所选任务的详情，以及相关 Codex rollout 或 Claude log 的入口
-- 可在英文、日文和中文之间切换的设置界面
-
-## 功能
-
-- macOS 菜单栏镜头图标和紧凑的弹出面板
-- 默认显示 Active 任务，并支持 Active、Attention、Completed、All 过滤
-- 显示 Claude MCP、Codex exec、Codex MCP、Codex App、独立 Codex session 等来源标签
-- 显示仓库路径、分支、变更文件数、当前事件和最后活动时间
-- 本地只读扫描 Codex rollout 文件、Claude Code project log、`codex mcp-server` 进程和轻量 Git 状态
-- UI 支持英文、日文和中文
-- 可通过 `npm run scan` 输出终端快照
-
-## 为什么需要它
-
-Claude Code 和 Codex 配合使用很强大，但通过 Codex MCP 运行的任务在完成前往往不够透明。CodexLens 在不改变 Claude Code 或 Codex 工作方式的前提下，为本地 AI agent session 提供一个小型可观测层。
-
-## 隐私
-
-CodexLens 是本地专用、只读工具。
-
-它会读取：
-
-- `~/.codex/session_index.jsonl`
-- `~/.codex/sessions/**/*.jsonl`
-- `~/.claude/projects/**/*.jsonl`
-- 本地 `claude`、`codex mcp-server`、`codex app-server` 的进程标签
-- 检测到的工作目录的轻量 Git 状态
-
-它不会：
-
-- 读取 `~/.codex/auth.json`
-- 通过网络发送遥测或 session 数据
-- 默认显示完整 prompt 或 tool arguments
-- 检查 Claude Code 和 `codex mcp-server` 之间的私有 stdio pipe
-- 修改 Claude Code、Codex、MCP 配置、Git 仓库或 session 文件
-
-点击更新链接时，CodexLens 可以在浏览器中打开最新的 GitHub Release。它不会在后台检查更新。
-
-如果可用，CodexLens 可能会显示 `~/.codex/session_index.jsonl` 中的 Codex thread title，因为这有助于识别任务。如果 thread title 或本地路径包含敏感项目名称，请谨慎分享截图。
-
-## 环境要求
-
-- macOS
-- Node.js 20 或更新版本
-- npm
-- 如果想看到实时活动，需要本地存在 Claude Code 或 OpenAI Codex 的 session 文件
-
-## 安装和运行
-
-### 下载版
-
-项目已经配置了不需要 Apple Developer Secrets 的 macOS DMG/ZIP 发布流程，默认发布未签名构建。首次 `v*` release 发布后，可以从 [GitHub Releases](https://github.com/Yukhy/codexlens/releases) 下载 DMG，并将 CodexLens 拖到 Applications 中使用。
-
-如果以后配置 Apple Developer ID Secrets，同一 workflow 会切换为签名并 notarize 的构建。未签名发布、可选签名、更新方式和 Homebrew cask 准备请参考 [Distribution](docs/distribution.md)。
-
-### 从源码运行
-
-```bash
-git clone https://github.com/Yukhy/codexlens.git
-cd codexlens
-npm install
-npm run open:mac
-```
-
-点击 macOS 菜单栏中的镜头图标即可打开面板。
-
-查看终端快照：
-
-```bash
-npm run scan
-```
-
-开发时：
-
-```bash
-npm test
-npm run screenshots
-npm start
-```
-
-## 当前限制
-
-- 关联逻辑是启发式的。CodexLens 使用 Codex thread id、工作目录和时间来关联 Claude Code tool call 与 Codex rollout 文件。
-- 如果官方 MCP 运行时 Codex rollout 文件没有更新，CodexLens 仍可显示进程/仓库状态，但无法显示详细进度。
-- 只有当 Codex 在 rollout 文件中记录了可区分事件时，才能看到 subagent 数量相关信息。
-- 默认公开发布未签名，除非配置 Apple Developer ID Secrets。
-- 未签名的 macOS 构建不会启用应用内自动安装更新。可以从设置页或菜单栏右键菜单打开最新 GitHub Release。
-
-## 项目结构
-
-- `src/main.js`: Electron 菜单栏应用
-- `src/assets/codexlensTemplate.png` 和 `src/assets/codexlensTemplate@2x.png`: macOS template tray icon
-- `src/assets/codexlens-menubar.svg`: 可编辑图标源文件
-- `src/observer/`: 只读扫描器和关联逻辑
-- `src/renderer/`: 弹出面板 UI
-- `src/cli.js`: 在终端输出同样的快照
-- `build/`: 应用图标和 macOS 签名 entitlements
-- `scripts/capture-screenshots.js`: 使用合成演示数据重新生成 README 截图
-- `.github/workflows/release.yml`: 从 `v*` tag 构建 macOS release；默认未签名，存在 Apple Secrets 时切换为签名并 notarize
-- `docs/assets/`: README 使用的截图
-- `docs/distribution.md`: 未签名发布、可选 Developer ID 签名、更新方式和 Homebrew cask 准备说明
-- `test/`: JSONL 解析、Claude Code 提取、Codex rollout 解析和关联逻辑测试
-
-## 关键词
-
-OpenAI Codex、Codex CLI、Codex MCP、Claude Code、MCP server、AI agent observability、local agent monitor、macOS menu bar、Electron。
-
-## 支持
-
-如果 CodexLens 帮你节省了调试时间，可以通过 GitHub 的 Sponsor 按钮或 [Buy Me a Coffee](https://buymeacoffee.com/yukhy0119e) 支持这个项目。
-
-## 免责声明
-
-CodexLens 是一个独立的非官方工具，与 OpenAI 或 Anthropic 没有关联。
-
-## 许可证
-
-MIT

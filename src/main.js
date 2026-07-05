@@ -4,6 +4,7 @@ const path = require('node:path');
 const { app, BrowserWindow, ipcMain, nativeImage, shell, Tray, Menu } = require('electron');
 
 const { getSnapshot } = require('./observer');
+const { fetchLatestRelease, isNewerVersion, normalizeVersion } = require('./update');
 
 const APP_NAME = 'CodexLens';
 const TRAY_GUID = 'bfe88412-57a8-4122-b4dd-e66cc9d62c9c';
@@ -88,6 +89,11 @@ function createTray() {
 
 ipcMain.handle('observer:getSnapshot', async () => getSnapshot());
 
+ipcMain.handle('observer:getAppInfo', async () => ({
+  version: app.getVersion(),
+  latestReleaseUrl: LATEST_RELEASE_URL
+}));
+
 ipcMain.handle('observer:openPath', async (_event, targetPath) => {
   if (!targetPath || typeof targetPath !== 'string') return { ok: false, error: 'Invalid path' };
   const error = await shell.openPath(targetPath);
@@ -100,9 +106,37 @@ ipcMain.handle('observer:showItemInFolder', async (_event, targetPath) => {
   return { ok: true };
 });
 
-ipcMain.handle('observer:openLatestRelease', async () => {
-  await shell.openExternal(LATEST_RELEASE_URL);
+function isAllowedReleaseUrl(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.origin === 'https://github.com' && url.pathname.startsWith('/Yukhy/codexlens/releases');
+  } catch {
+    return false;
+  }
+}
+
+ipcMain.handle('observer:openLatestRelease', async (_event, targetUrl) => {
+  const url = isAllowedReleaseUrl(targetUrl) ? targetUrl : LATEST_RELEASE_URL;
+  await shell.openExternal(url);
   return { ok: true };
+});
+
+ipcMain.handle('observer:checkForUpdates', async () => {
+  try {
+    const currentVersion = app.getVersion();
+    const latest = await fetchLatestRelease();
+    const latestVersion = normalizeVersion(latest.tagName);
+    return {
+      ok: true,
+      currentVersion,
+      latestVersion,
+      updateAvailable: isNewerVersion(latest.tagName, currentVersion),
+      url: latest.htmlUrl || LATEST_RELEASE_URL
+    };
+  } catch (error) {
+    return { ok: false, error: String(error && error.message ? error.message : error) };
+  }
 });
 
 app.whenReady().then(() => {

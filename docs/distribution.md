@@ -47,13 +47,11 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-The `Release` GitHub Action detects that Apple signing/notarization secrets are absent and runs:
+The `Release` GitHub Action detects that Apple signing/notarization secrets are absent, builds unsigned DMG/ZIP artifacts, and uploads them to the GitHub release for that tag with `gh release upload`. If the release does not exist yet, the workflow creates it; if it was already created manually in the GitHub UI, the assets are attached to it instead of failing.
 
-```bash
-npm run release:mac:unsigned -- --x64 --arm64
-```
+The workflow can also be started manually (`workflow_dispatch`). Provide the optional `tag` input to attach freshly built assets to an existing tag's release; leave it empty to just build and store the artifacts on the workflow run.
 
-This publishes unsigned DMG/ZIP assets to GitHub Releases. Users may see macOS Gatekeeper warnings because the artifacts are not signed or notarized.
+Users may see macOS Gatekeeper warnings because the artifacts are not signed or notarized. The README documents the `Open Anyway` / `xattr -dr com.apple.quarantine` workaround.
 
 ## Optional Apple Secrets
 
@@ -108,8 +106,8 @@ Reason: both Electron and electron-builder document that macOS automatic updates
 
 Current behavior:
 
-- The app has a Settings button for opening the latest GitHub Release.
-- The menu bar context menu also includes `Check for Updates...`.
+- Settings has a `Check for updates` button. It calls the public GitHub Releases API once (only when clicked, never in the background), compares the running version with the latest release tag, and shows the result.
+- Settings also has an `Open latest release` button, and the menu bar context menu includes `Check for Updates...`, both of which open the GitHub Releases page in the browser.
 - Users download and replace the app manually.
 
 Future signed behavior:
@@ -144,8 +142,12 @@ brew install --cask codexlens
 
 ## 日本語メモ
 
-Apple Developer Programに入らなくても、未署名DMG/ZIPはGitHub Releasesへ公開できます。Secretsがない場合、Release workflowは失敗せず未署名リリースにフォールバックします。自動インストール型アップデートは署名済みmacOSアプリが前提なので、未署名運用では最新版Releaseを開く手動導線にしています。
+Apple Developer Programに入らなくても、未署名のDMG/ZIPをGitHub Releasesへ公開できます。Secretsが未設定の場合でもRelease workflowは失敗せず、未署名リリースへ自動的にフォールバックします。ビルド後の成果物は `gh release upload` でリリースに添付するため、GitHubのUIで先にリリースを作成していても問題ありません。
+
+自動インストール型のアップデートは署名済みmacOSアプリが前提です。そのため未署名運用では、設定画面の「アップデートを確認」(クリック時のみGitHub APIでバージョン比較)と「最新リリースを開く」による手動アップデートにしています。
 
 ## 中文备注
 
-即使不加入 Apple Developer Program，也可以通过 GitHub Releases 发布未签名的 DMG/ZIP。没有 Secrets 时，Release workflow 不会失败，而是回退到未签名发布。应用内自动安装更新在 macOS 上需要签名应用，因此未签名发布采用打开最新 GitHub Release 的手动更新方式。
+即使不加入 Apple Developer Program，也可以通过 GitHub Releases 发布未签名的 DMG/ZIP。未配置 Secrets 时，Release workflow 不会失败，而是自动回退到未签名发布。构建产物通过 `gh release upload` 附加到 Release 上，因此即使先在 GitHub 界面手动创建了 Release 也不会出错。
+
+应用内自动安装更新在 macOS 上需要签名应用。因此未签名版本采用手动更新方式：设置页的「检查更新」（仅在点击时调用 GitHub API 比对版本）和「打开最新 Release」。

@@ -1,0 +1,53 @@
+name: 🐛 Bug report
+description: Something in CodexLens is broken or behaving unexpectedly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+        **Please never paste raw session logs, prompt text, tokens, or private repository paths.** Redact anything sensitive first.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+      placeholder: The stalled counter shows 3, but no run cards appear when...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a Codex run via Claude Code MCP
+        2. Open the CodexLens popover
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: CodexLens version
+      description: Settings → current version, or the commit hash if running from source.
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: macOS 15.5 (Apple Silicon)
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Agent setup
+      description: Which tools were running? (Claude Code, Codex CLI, Codex app, versions if known)
+      placeholder: Claude Code 2.x + codex-cli 0.142 via MCP
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots (redacted), `npm run scan` output (redacted), etc.

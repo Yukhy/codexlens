@@ -510,6 +510,28 @@ p {
   color: var(--muted);
 }
 
+.version-line {
+  margin-top: 10px;
+}
+
+.settings-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-link-button {
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  padding: 0;
+  text-decoration: underline;
+}
+
+.inline-link-button:hover {
+  color: var(--ink);
+}
+
 .language-options {
   display: grid;
   gap: 8px;

@@ -186,6 +186,9 @@ const snapshot = {
 
 contextBridge.exposeInMainWorld('observer', {
   getSnapshot: async () => snapshot,
+  getAppInfo: async () => ({ version: '0.2.0', latestReleaseUrl: 'https://github.com/Yukhy/codexlens/releases/latest' }),
+  checkForUpdates: async () => ({ ok: true, currentVersion: '0.2.0', latestVersion: '0.2.0', updateAvailable: false, url: 'https://github.com/Yukhy/codexlens/releases/latest' }),
+  openLatestRelease: async () => ({ ok: true }),
   openPath: async () => ({ ok: true }),
   showItemInFolder: async () => ({ ok: true })
 });
