@@ -183,10 +183,10 @@ h1 {
   font-size: 14px;
 }
 
-/* The gear glyph (U+2699) has less ink than the refresh arrow at the same
-   font size, so it gets one extra step to look optically equal. */
-#settings {
-  font-size: 21px;
+.icon-button svg {
+  width: 17px;
+  height: 17px;
+  display: block;
 }
 
 .icon-button:hover:not(:disabled) {
