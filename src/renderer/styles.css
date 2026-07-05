@@ -481,13 +481,26 @@ p {
   color: var(--muted);
 }
 
+.primary-button,
 .secondary-button {
   flex: 0 0 auto;
   border: 1px solid var(--line);
   border-radius: 7px;
+  padding: 6px 10px;
+}
+
+.primary-button {
+  border-color: rgba(36, 119, 184, 0.48);
+  background: var(--blue);
+  color: white;
+  font-weight: 720;
+}
+
+.primary-button:disabled { border-color: var(--line); background: var(--line-strong); color: rgba(255, 255, 255, 0.8); }
+
+.secondary-button {
   background: var(--panel-soft);
   color: var(--ink);
-  padding: 6px 10px;
 }
 
 .secondary-button:hover {
@@ -509,6 +522,70 @@ p {
   margin: 6px 0 10px;
   color: var(--muted);
 }
+
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--ink);
+}
+
+.toggle-row input {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.toggle-label {
+  display: block;
+  font-weight: 680;
+}
+
+.toggle-hint {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.version-line { margin-bottom: 10px; color: var(--ink); font-size: 12px; }
+
+#current-version {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.update-actions { display: flex; gap: 8px; }
+
+.update-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gray);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 9px 10px;
+  color: var(--ink);
+}
+
+.update-status p { color: var(--muted); }
+
+.update-status button {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: white;
+  color: var(--ink);
+  padding: 5px 9px;
+}
+
+.update-status-checking { border-left-color: var(--blue); background: var(--blue-soft); }
+.update-status-up-to-date { border-left-color: var(--green); background: var(--green-soft); }
+.update-status-available { border-left-color: var(--amber); background: var(--amber-soft); }
+.update-status-failed { border-left-color: var(--red); background: var(--red-soft); }
 
 .language-options {
   display: grid;

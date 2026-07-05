@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest an idea or improvement for CodexLens
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: e.g. I can't tell which Claude Code session spawned a given Codex run when I have three sessions open.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+  - type: markdown
+    attributes:
+      value: |
+        Note: CodexLens is intentionally local-only and read-only. Features that upload data, proxy MCP traffic, or modify sessions are out of scope.

@@ -4,10 +4,12 @@ const path = require('node:path');
 const { app, BrowserWindow, ipcMain, nativeImage, shell, Tray, Menu } = require('electron');
 
 const { getSnapshot } = require('./observer');
+const { compareVersions, normalizeVersion } = require('./update/version');
 
 const APP_NAME = 'CodexLens';
 const TRAY_GUID = 'bfe88412-57a8-4122-b4dd-e66cc9d62c9c';
 const LATEST_RELEASE_URL = 'https://github.com/Yukhy/codexlens/releases/latest';
+const LATEST_RELEASE_API_URL = 'https://api.github.com/repos/Yukhy/codexlens/releases/latest';
 
 let tray = null;
 let window = null;
@@ -71,6 +73,20 @@ function toggleWindow() {
   window.focus();
 }
 
+function showSettingsWindow() {
+  if (!window) return;
+  positionWindow();
+  window.show();
+  window.focus();
+  if (window.webContents.isLoading()) {
+    window.webContents.once('did-finish-load', () => {
+      window.webContents.send('observer:show-settings');
+    });
+    return;
+  }
+  window.webContents.send('observer:show-settings');
+}
+
 function createTray() {
   tray = new Tray(createTrayImage(), TRAY_GUID);
   if (process.platform === 'darwin') {
@@ -79,11 +95,53 @@ function createTray() {
   tray.setToolTip(APP_NAME);
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: `Show ${APP_NAME}`, click: toggleWindow },
-    { label: 'Check for Updates...', click: () => shell.openExternal(LATEST_RELEASE_URL) },
+    { label: 'Check for Updates...', click: showSettingsWindow },
     { type: 'separator' },
     { role: 'quit' }
   ]));
   tray.on('click', toggleWindow);
+}
+
+async function checkForUpdates() {
+  const currentVersion = app.getVersion();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(LATEST_RELEASE_API_URL, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'CodexLens'
+      },
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      return { ok: false, error: `HTTP ${response.status}`, currentVersion };
+    }
+
+    const release = await response.json();
+    const latestVersion = normalizeVersion(release?.tag_name);
+    if (!release || typeof release !== 'object' || latestVersion === '0.0.0') {
+      return { ok: false, error: 'Invalid release response', currentVersion };
+    }
+
+    const releaseUrl = typeof release.html_url === 'string' && release.html_url
+      ? release.html_url
+      : LATEST_RELEASE_URL;
+
+    return {
+      ok: true,
+      currentVersion,
+      latestVersion,
+      updateAvailable: compareVersions(latestVersion, currentVersion) > 0,
+      releaseUrl
+    };
+  } catch (error) {
+    const message = error?.name === 'AbortError' ? 'Request timed out' : 'Update check failed';
+    return { ok: false, error: message, currentVersion };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 ipcMain.handle('observer:getSnapshot', async () => getSnapshot());
@@ -104,6 +162,64 @@ ipcMain.handle('observer:openLatestRelease', async () => {
   await shell.openExternal(LATEST_RELEASE_URL);
   return { ok: true };
 });
+
+ipcMain.handle('observer:openExternal', async (_event, url) => {
+  if (typeof url !== 'string' || !url.startsWith('https://github.com/')) {
+    return { ok: false, error: 'Invalid URL' };
+  }
+  await shell.openExternal(url);
+  return { ok: true };
+});
+
+ipcMain.handle('observer:getAppInfo', async () => ({ version: app.getVersion() }));
+
+ipcMain.handle('observer:getLoginItemSettings', async () => {
+  try {
+    return {
+      ok: true,
+      supported: app.isPackaged,
+      openAtLogin: app.getLoginItemSettings().openAtLogin
+    };
+  } catch (_error) {
+    return {
+      ok: false,
+      error: 'Login item settings unavailable',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+});
+
+ipcMain.handle('observer:setLoginItem', async (_event, enabled) => {
+  if (typeof enabled !== 'boolean') {
+    return { ok: false, error: 'Invalid value', supported: false, openAtLogin: false };
+  }
+  if (!app.isPackaged) {
+    return {
+      ok: false,
+      error: 'Not available in development mode',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+  try {
+    app.setLoginItemSettings({ openAtLogin: enabled });
+    return {
+      ok: true,
+      supported: true,
+      openAtLogin: app.getLoginItemSettings().openAtLogin
+    };
+  } catch (_error) {
+    return {
+      ok: false,
+      error: 'Login item settings unavailable',
+      supported: false,
+      openAtLogin: false
+    };
+  }
+});
+
+ipcMain.handle('observer:checkForUpdates', async () => checkForUpdates());
 
 app.whenReady().then(() => {
   app.setName(APP_NAME);
