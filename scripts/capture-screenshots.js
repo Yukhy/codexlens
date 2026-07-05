@@ -36,7 +36,7 @@ async function createWindow() {
     show: false,
     frame: false,
     resizable: false,
-    backgroundColor: '#eef2f6',
+    backgroundColor: '#ececec',
     paintWhenInitiallyHidden: true,
     webPreferences: {
       preload: preloadPath,
