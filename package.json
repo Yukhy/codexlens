@@ -6,6 +6,8 @@
   "scripts": {
     "start": "electron .",
     "open:mac": "open -n -a \"$PWD/node_modules/electron/dist/Electron.app\" --args \"$PWD\"",
+    "dist:mac:unsigned": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg zip --config.mac.identity=null --config.mac.notarize=false",
+    "release:mac": "electron-builder --mac dmg zip --publish always",
     "screenshots": "electron scripts/capture-screenshots.js",
     "scan": "node src/cli.js",
     "test": "node --test test/*.test.js"
@@ -38,7 +40,59 @@
   "engines": {
     "node": ">=20"
   },
+  "build": {
+    "appId": "com.yukhy.codexlens",
+    "productName": "CodexLens",
+    "copyright": "Copyright © 2026 Yukhy",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "notarize": true,
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Yukhy",
+        "repo": "codexlens",
+        "releaseType": "release"
+      }
+    ]
+  },
   "devDependencies": {
-    "electron": "^39.2.7"
+    "electron": "^39.2.7",
+    "electron-builder": "^26.15.3"
   }
 }
