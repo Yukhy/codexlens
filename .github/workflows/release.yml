@@ -43,8 +43,8 @@ jobs:
             *) tag="$REF_NAME" ;;
           esac
 
-          if [[ ! "$tag" =~ ^v[0-9] ]]; then
-            echo "::error title=Invalid tag::Expected a v* version tag, got '$tag'."
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error title=Invalid tag::Expected a vMAJOR.MINOR.PATCH tag, got '$tag'."
             exit 1
           fi
 
@@ -63,6 +63,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # The release tag is the source of truth for the app version: artifact
+      # names (CodexLens-<version>-<arch>.dmg) and app.getVersion(), which the
+      # in-app update check compares against the latest release tag, are both
+      # derived from package.json at build time.
+      - name: Align package version with release tag
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: npm version --no-git-tag-version --allow-same-version "${TAG#v}"
 
       - name: Run tests
         run: npm test

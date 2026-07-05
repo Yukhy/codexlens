@@ -55,6 +55,8 @@ gh release create v0.2.0 --title v0.2.0 --generate-notes
 
 (or draft the release in the GitHub web UI — assets are attached automatically once it is published).
 
+The release tag is the source of truth for the app version: the workflow rewrites the `package.json` version from the tag before building, so artifact names (`CodexLens-<version>-<arch>.dmg`) and the version reported by the in-app update check always match the release, regardless of the version committed in the repo.
+
 When Apple signing/notarization secrets are absent, the workflow builds unsigned artifacts with electron-builder directly (equivalent to the local `npm run dist:mac:unsigned`, plus `--x64 --arm64`). It calls `npx electron-builder` rather than the npm script so that `workflow_dispatch` can also backfill assets for older tags whose `package.json` predates the current script names.
 
 It then uploads the DMG/ZIP assets with `gh release upload --clobber`, creating the release first only if it does not already exist. This is idempotent: it works whether the release was published from the GitHub web UI, by `gh release create`, or re-run after a previous partial run. Do not build with `--publish always`; electron-builder fails with `422 already_exists` when a published release for the tag already exists.
@@ -152,7 +154,7 @@ brew install --cask codexlens
 
 Apple Developer Programに加入していなくても、未署名のDMG/ZIPをGitHub Releasesへ公開できます。Secretsが未設定の場合、Release workflowは失敗せず未署名リリースへフォールバックします。
 
-リリースはGitHub Releaseの公開（UIまたは `gh release create`）がトリガーです。タグのpush単体ではワークフローは起動しません。UIでリリースを作成するとタグpushイベントも同時に発火して同じビルドが二重に走っていたため、トリガーをrelease公開に一本化しています。アセットのアップロードは `gh release upload --clobber` で行うため、再実行しても安全です（v0.1.0では `--publish always` が既存リリースと衝突して `422 already_exists` で失敗していました。この方式で解消済みです）。
+アプリのバージョンはリリースタグが正です。ワークフローがビルド前に `package.json` のバージョンをタグに合わせて書き換えるため、成果物のファイル名とアプリ内バージョンは常にリリースと一致します。リリースはGitHub Releaseの公開（UIまたは `gh release create`）がトリガーです。タグのpush単体ではワークフローは起動しません。UIでリリースを作成するとタグpushイベントも同時に発火して同じビルドが二重に走っていたため、トリガーをrelease公開に一本化しています。アセットのアップロードは `gh release upload --clobber` で行うため、再実行しても安全です（v0.1.0では `--publish always` が既存リリースと衝突して `422 already_exists` で失敗していました。この方式で解消済みです）。
 
 自動インストール型のアップデートは署名済みmacOSアプリが前提です。そのため未署名運用では、設定画面の「アップデートを確認」ボタンでGitHub Releases APIに手動で問い合わせ、新しいバージョンがあればブラウザでダウンロードする方式にしています。バックグラウンドでの自動チェックは行いません。
 
@@ -160,6 +162,6 @@ Apple Developer Programに加入していなくても、未署名のDMG/ZIPをGi
 
 即使不加入 Apple Developer Program，也可以通过 GitHub Releases 发布未签名的 DMG/ZIP。没有配置 Secrets 时，Release workflow 不会失败，而是回退到未签名发布。
 
-发布的触发条件是"发布 GitHub Release"（网页 UI 或 `gh release create`）。单独推送标签不会触发 workflow：在 UI 上创建 Release 会同时触发标签推送事件，曾导致同一构建重复运行两次，因此触发条件已统一为 Release 发布。资产上传通过 `gh release upload --clobber` 完成，重复运行也是安全的（v0.1.0 曾因 `--publish always` 与已存在的 Release 冲突而报 `422 already_exists`，现已通过此方式修复）。
+应用版本以 Release 标签为准：workflow 会在构建前将 `package.json` 的版本改写为标签版本，因此产物文件名和应用内版本始终与 Release 一致。发布的触发条件是"发布 GitHub Release"（网页 UI 或 `gh release create`）。单独推送标签不会触发 workflow：在 UI 上创建 Release 会同时触发标签推送事件，曾导致同一构建重复运行两次，因此触发条件已统一为 Release 发布。资产上传通过 `gh release upload --clobber` 完成，重复运行也是安全的（v0.1.0 曾因 `--publish always` 与已存在的 Release 冲突而报 `422 already_exists`，现已通过此方式修复）。
 
 macOS 上的应用内自动更新要求应用已签名。因此在未签名发布模式下，用户可以在设置中点击"检查更新"按钮，手动向 GitHub Releases API 查询新版本，并在浏览器中下载。不会进行任何后台自动检查。
