@@ -1,5 +1,9 @@
 node_modules/
 .DS_Store
+
+# Local AI tooling state
+.claude/
+.memsearch/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

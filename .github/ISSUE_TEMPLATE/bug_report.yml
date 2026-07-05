@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in CodexLens is broken or behaving unexpectedly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please do **not** paste raw session logs, prompt text, tokens, auth files, or private repository paths — redact them first.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead?
+      placeholder: e.g. A running Codex exec session never appears in the run list.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start Claude Code with the codex MCP server
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: CodexLens version or commit
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: macOS 15.5 (Apple Silicon)
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install CodexLens?
+      options:
+        - DMG from GitHub Releases
+        - From source (npm)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Terminal output of `npm run scan` (redacted) is often the fastest way to debug detection issues.
