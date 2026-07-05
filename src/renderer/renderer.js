@@ -33,6 +33,9 @@ const I18N = {
     settingsTitle: 'Settings',
     settingsDescription: 'Choose how the observer is displayed.',
     languageTitle: 'Language',
+    updatesTitle: 'Updates',
+    updatesDescription: 'Open the latest GitHub Release to download a newer build.',
+    openLatestRelease: 'Open latest release',
     back: 'Back',
     status: 'Status',
     job: 'Job',
@@ -79,6 +82,9 @@ const I18N = {
     settingsTitle: '設定',
     settingsDescription: 'Observerの表示方法を選択します。',
     languageTitle: '言語',
+    updatesTitle: 'アップデート',
+    updatesDescription: '最新版を入れる場合はGitHub Releaseを開いてダウンロードしてください。',
+    openLatestRelease: '最新版Releaseを開く',
     back: '戻る',
     status: '状態',
     job: 'ジョブ',
@@ -125,6 +131,9 @@ const I18N = {
     settingsTitle: '设置',
     settingsDescription: '选择观察器的显示方式。',
     languageTitle: '语言',
+    updatesTitle: '更新',
+    updatesDescription: '打开最新的 GitHub Release 下载新版构建。',
+    openLatestRelease: '打开最新 Release',
     back: '返回',
     status: '状态',
     job: '任务',
@@ -215,6 +224,7 @@ const elements = {
   backToRuns: document.getElementById('back-to-runs'),
   appViews: Array.from(document.querySelectorAll('.app-view')),
   settingsView: document.getElementById('settings-view'),
+  openLatestRelease: document.getElementById('open-latest-release'),
   filterButtons: Array.from(document.querySelectorAll('.filter-button')),
   runFilter: document.getElementById('run-filter'),
   languageButtons: Array.from(document.querySelectorAll('.language-button'))
@@ -532,6 +542,9 @@ elements.settings.addEventListener('click', () => {
 elements.backToRuns.addEventListener('click', () => {
   currentView = 'runs';
   render();
+});
+elements.openLatestRelease.addEventListener('click', () => {
+  window.observer.openLatestRelease();
 });
 for (const button of elements.filterButtons) {
   button.addEventListener('click', () => {

@@ -66,6 +66,8 @@ It does not:
 - inspect the private stdio pipe between Claude Code and `codex mcp-server`
 - modify Claude Code, Codex, MCP configuration, Git repositories, or session files
 
+CodexLens can open the latest GitHub Release in your browser when you click an update link. It does not perform background update checks.
+
 CodexLens may display Codex thread titles from `~/.codex/session_index.jsonl` when they are available, because those titles are useful for identifying a run. Avoid sharing screenshots if thread titles or local paths contain sensitive project names.
 
 ## Requirements
@@ -79,9 +81,9 @@ CodexLens may display Codex thread titles from `~/.codex/session_index.jsonl` wh
 
 ### Downloadable App
 
-The release pipeline is configured for Developer ID-signed and notarized macOS DMG/ZIP artifacts. After the first `v*` release is published, download the DMG from [GitHub Releases](https://github.com/Yukhy/codexlens/releases) and drag CodexLens to Applications.
+The release pipeline publishes unsigned macOS DMG/ZIP artifacts by default, with no Apple Developer secrets required. After the first `v*` release is published, download the DMG from [GitHub Releases](https://github.com/Yukhy/codexlens/releases) and drag CodexLens to Applications.
 
-Release maintainers can follow [Distribution](docs/distribution.md) for Apple Developer ID signing, notarization, and Homebrew cask preparation.
+If Apple Developer ID secrets are configured later, the same workflow switches to signed and notarized artifacts. Release maintainers can follow [Distribution](docs/distribution.md) for unsigned releases, optional signing, update behavior, and Homebrew cask preparation.
 
 ### From Source
 
@@ -113,7 +115,8 @@ npm start
 - Correlation is heuristic-based. CodexLens uses Codex thread ids, working directories, and timing to connect Claude Code tool calls with Codex rollout files.
 - If Codex rollout files do not update while official MCP is running, CodexLens can still show process/repo state but not detailed progress.
 - Subagent counts are only visible when Codex records distinguishable events in rollout files.
-- This is an early macOS-focused app. Signed releases are configured, but they require Apple Developer ID secrets before the first public DMG is published.
+- Default public releases are unsigned unless Apple Developer ID secrets are configured.
+- Automatic in-app update installation is not enabled for unsigned macOS builds. Use Settings or the menu bar context menu to open the latest GitHub Release.
 
 ## Project Structure
 
@@ -125,9 +128,9 @@ npm start
 - `src/cli.js` prints the same snapshot in the terminal.
 - `build/` contains the app icon and macOS signing entitlements.
 - `scripts/capture-screenshots.js` regenerates README screenshots with synthetic demo data.
-- `.github/workflows/release.yml` builds signed and notarized macOS releases from `v*` tags.
+- `.github/workflows/release.yml` builds macOS releases from `v*` tags. It publishes unsigned artifacts by default and switches to signed/notarized artifacts when Apple secrets are present.
 - `docs/assets/` contains screenshots used by this README.
-- `docs/distribution.md` explains Developer ID signing, notarization, and Homebrew cask preparation.
+- `docs/distribution.md` explains unsigned releases, optional Developer ID signing, update behavior, and Homebrew cask preparation.
 - `test/` covers the JSONL parsing, Claude Code extraction, Codex rollout parsing, and correlation logic.
 
 ## Keywords
@@ -211,6 +214,8 @@ CodexLensはローカル専用・読み取り専用です。
 - Claude Codeと `codex mcp-server` のprivate stdio pipeを覗かない
 - Claude Code、Codex、MCP設定、Gitリポジトリ、セッションファイルを変更しない
 
+アップデートリンクをクリックした場合、CodexLensはブラウザで最新GitHub Releaseを開けます。バックグラウンドでの更新確認は行いません。
+
 利用可能な場合、CodexLensは `~/.codex/session_index.jsonl` のCodexスレッドタイトルを表示することがあります。実行中のジョブを識別するためです。スレッドタイトルやローカルパスに機密プロジェクト名が含まれる場合は、スクリーンショット共有に注意してください。
 
 ## 必要環境
@@ -224,9 +229,9 @@ CodexLensはローカル専用・読み取り専用です。
 
 ### ダウンロード版
 
-Developer ID署名とnotarize済みのmacOS DMG/ZIPを作るリリースパイプラインを設定済みです。最初の `v*` リリース公開後は、[GitHub Releases](https://github.com/Yukhy/codexlens/releases) からDMGをダウンロードし、CodexLensをApplicationsへドラッグして使えます。
+Apple Developer Secretsなしで、未署名のmacOS DMG/ZIPを公開するリリースパイプラインを設定済みです。最初の `v*` リリース公開後は、[GitHub Releases](https://github.com/Yukhy/codexlens/releases) からDMGをダウンロードし、CodexLensをApplicationsへドラッグして使えます。
 
-リリース担当者向けのApple Developer ID署名、notarize、Homebrew cask準備は [Distribution](docs/distribution.md) を参照してください。
+将来Apple Developer IDのSecretsを設定した場合は、同じworkflowが署名/notarize済み成果物に切り替わります。未署名リリース、任意の署名、アップデート導線、Homebrew cask準備は [Distribution](docs/distribution.md) を参照してください。
 
 ### ソースから起動
 
@@ -258,7 +263,8 @@ npm start
 - 関連付けはヒューリスティックです。CodexLensはCodex thread id、作業ディレクトリ、時刻を使ってClaude Codeのツール呼び出しとCodex rolloutファイルを紐付けます。
 - 公式MCP実行中にCodex rolloutファイルが更新されない場合、プロセスやリポジトリ状態は表示できますが、詳細な進捗は表示できません。
 - サブエージェント数は、Codexがrolloutファイル内に区別可能なイベントを記録している場合に限って見えます。
-- まだ初期段階のmacOS向けアプリです。署名済みリリースの構成は追加済みですが、最初の公開DMGにはApple Developer IDのSecrets設定が必要です。
+- 公開リリースは、Apple Developer IDのSecretsを設定しない限り未署名です。
+- 未署名macOSビルドでは、アプリ内の自動インストール型アップデートは有効化していません。設定画面またはメニューバーのコンテキストメニューから最新GitHub Releaseを開いてください。
 
 ## プロジェクト構成
 
@@ -270,9 +276,9 @@ npm start
 - `src/cli.js`: 同じスナップショットをターミナルに出力
 - `build/`: アプリアイコンとmacOS署名用entitlements
 - `scripts/capture-screenshots.js`: 合成デモデータでREADME用スクリーンショットを再生成
-- `.github/workflows/release.yml`: `v*` タグから署名済み/notarize済みmacOSリリースを作成
+- `.github/workflows/release.yml`: `v*` タグからmacOSリリースを作成。通常は未署名、Apple Secretsがある場合は署名/notarize済みに切り替え
 - `docs/assets/`: READMEで使うスクリーンショット
-- `docs/distribution.md`: Developer ID署名、notarize、Homebrew cask準備の手順
+- `docs/distribution.md`: 未署名リリース、任意のDeveloper ID署名、アップデート導線、Homebrew cask準備の手順
 - `test/`: JSONLパース、Claude Code抽出、Codex rolloutパース、相関ロジックのテスト
 
 ## キーワード
@@ -356,6 +362,8 @@ CodexLens 是本地专用、只读工具。
 - 检查 Claude Code 和 `codex mcp-server` 之间的私有 stdio pipe
 - 修改 Claude Code、Codex、MCP 配置、Git 仓库或 session 文件
 
+点击更新链接时，CodexLens 可以在浏览器中打开最新的 GitHub Release。它不会在后台检查更新。
+
 如果可用，CodexLens 可能会显示 `~/.codex/session_index.jsonl` 中的 Codex thread title，因为这有助于识别任务。如果 thread title 或本地路径包含敏感项目名称，请谨慎分享截图。
 
 ## 环境要求
@@ -369,9 +377,9 @@ CodexLens 是本地专用、只读工具。
 
 ### 下载版
 
-项目已经配置了用于生成 Developer ID 签名并 notarize 的 macOS DMG/ZIP 发布流程。首次 `v*` release 发布后，可以从 [GitHub Releases](https://github.com/Yukhy/codexlens/releases) 下载 DMG，并将 CodexLens 拖到 Applications 中使用。
+项目已经配置了不需要 Apple Developer Secrets 的 macOS DMG/ZIP 发布流程，默认发布未签名构建。首次 `v*` release 发布后，可以从 [GitHub Releases](https://github.com/Yukhy/codexlens/releases) 下载 DMG，并将 CodexLens 拖到 Applications 中使用。
 
-维护发布流程时，可参考 [Distribution](docs/distribution.md) 了解 Apple Developer ID 签名、notarization 和 Homebrew cask 准备。
+如果以后配置 Apple Developer ID Secrets，同一 workflow 会切换为签名并 notarize 的构建。未签名发布、可选签名、更新方式和 Homebrew cask 准备请参考 [Distribution](docs/distribution.md)。
 
 ### 从源码运行
 
@@ -403,7 +411,8 @@ npm start
 - 关联逻辑是启发式的。CodexLens 使用 Codex thread id、工作目录和时间来关联 Claude Code tool call 与 Codex rollout 文件。
 - 如果官方 MCP 运行时 Codex rollout 文件没有更新，CodexLens 仍可显示进程/仓库状态，但无法显示详细进度。
 - 只有当 Codex 在 rollout 文件中记录了可区分事件时，才能看到 subagent 数量相关信息。
-- 这是早期的 macOS 版本。签名发布流程已经配置好，但首次公开 DMG 仍需要 Apple Developer ID Secrets。
+- 默认公开发布未签名，除非配置 Apple Developer ID Secrets。
+- 未签名的 macOS 构建不会启用应用内自动安装更新。可以从设置页或菜单栏右键菜单打开最新 GitHub Release。
 
 ## 项目结构
 
@@ -415,9 +424,9 @@ npm start
 - `src/cli.js`: 在终端输出同样的快照
 - `build/`: 应用图标和 macOS 签名 entitlements
 - `scripts/capture-screenshots.js`: 使用合成演示数据重新生成 README 截图
-- `.github/workflows/release.yml`: 从 `v*` tag 构建签名并 notarize 的 macOS release
+- `.github/workflows/release.yml`: 从 `v*` tag 构建 macOS release；默认未签名，存在 Apple Secrets 时切换为签名并 notarize
 - `docs/assets/`: README 使用的截图
-- `docs/distribution.md`: Developer ID 签名、notarization 和 Homebrew cask 准备说明
+- `docs/distribution.md`: 未签名发布、可选 Developer ID 签名、更新方式和 Homebrew cask 准备说明
 - `test/`: JSONL 解析、Claude Code 提取、Codex rollout 解析和关联逻辑测试
 
 ## 关键词
