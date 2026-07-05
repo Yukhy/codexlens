@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   mac:
-    name: Build signed macOS release
+    name: Build macOS release
     runs-on: macos-latest
 
     steps:
@@ -30,7 +30,8 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Validate signing and notarization secrets
+      - name: Detect release mode
+        id: release_mode
         shell: bash
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -44,13 +45,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          missing=0
-          for required in CSC_LINK CSC_KEY_PASSWORD APPLE_TEAM_ID; do
-            if [[ -z "${!required:-}" ]]; then
-              echo "::error title=Missing secret::$required is required for signed macOS releases."
-              missing=1
-            fi
-          done
+          has_signing=0
+          if [[ -n "${CSC_LINK:-}" && -n "${CSC_KEY_PASSWORD:-}" && -n "${APPLE_TEAM_ID:-}" ]]; then
+            has_signing=1
+          fi
 
           has_apple_id=0
           if [[ -n "${APPLE_ID:-}" && -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
@@ -62,14 +60,16 @@ jobs:
             has_api_key=1
           fi
 
-          if [[ "$has_apple_id" -eq 0 && "$has_api_key" -eq 0 ]]; then
-            echo "::error title=Missing notarization credentials::Set APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD, or APPLE_API_KEY + APPLE_API_KEY_ID + APPLE_API_ISSUER."
-            missing=1
+          if [[ "$has_signing" -eq 1 && ( "$has_apple_id" -eq 1 || "$has_api_key" -eq 1 ) ]]; then
+            echo "mode=signed" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Release mode::Building a Developer ID signed and notarized macOS release."
+          else
+            echo "mode=unsigned" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Release mode::Apple signing/notarization secrets are incomplete or absent. Building an unsigned macOS release."
           fi
 
-          exit "$missing"
-
       - name: Build, sign, notarize, and publish
+        if: steps.release_mode.outputs.mode == 'signed'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -81,3 +81,9 @@ jobs:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: npm run release:mac -- --x64 --arm64
+
+      - name: Build unsigned release and publish
+        if: steps.release_mode.outputs.mode == 'unsigned'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release:mac:unsigned -- --x64 --arm64

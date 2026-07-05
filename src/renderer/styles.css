@@ -505,6 +505,11 @@ p {
   font-weight: 760;
 }
 
+.settings-copy {
+  margin: 6px 0 10px;
+  color: var(--muted);
+}
+
 .language-options {
   display: grid;
   gap: 8px;

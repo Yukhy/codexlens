@@ -4,7 +4,9 @@ This document describes how to ship CodexLens as a downloadable macOS app.
 
 ## Short Answer
 
-Apple Developer ID signing and notarization are not hard once the credentials exist. The first setup is the slow part:
+CodexLens can be released without Apple Developer secrets. The default release path publishes unsigned macOS DMG/ZIP artifacts from GitHub Actions.
+
+Optional Apple Developer ID signing and notarization can be added later. Once the credentials exist, the release workflow automatically switches to the signed path. The first setup is the slow part:
 
 1. Join the Apple Developer Program.
 2. Create and export a `Developer ID Application` certificate.
@@ -24,7 +26,7 @@ References:
 
 ## Local Unsigned Build
 
-Use this for packaging checks before touching Apple credentials:
+Use this for packaging checks and for Apple-secrets-free development:
 
 ```bash
 npm ci
@@ -34,7 +36,28 @@ npm run dist:mac:unsigned
 
 The generated app and installers are written to `release/`. This build is intentionally unsigned and not notarized.
 
-## GitHub Secrets
+## Release Without Apple Secrets
+
+No Apple secrets are required for the default release flow.
+
+Create a version tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The `Release` GitHub Action detects that Apple signing/notarization secrets are absent and runs:
+
+```bash
+npm run release:mac:unsigned -- --x64 --arm64
+```
+
+This publishes unsigned DMG/ZIP assets to GitHub Releases. Users may see macOS Gatekeeper warnings because the artifacts are not signed or notarized.
+
+## Optional Apple Secrets
+
+Only set these if you want signed and notarized releases later.
 
 Set these in `Settings -> Secrets and variables -> Actions`.
 
@@ -64,7 +87,7 @@ base64 -i "AuthKey_XXXXXXXXXX.p8" | tr -d '\n' | pbcopy
 
 Paste each copied value into the matching GitHub secret.
 
-## Release
+## Signed Release
 
 After the secrets are configured, create a version tag:
 
@@ -75,9 +98,28 @@ git push origin v0.1.0
 
 The `Release` GitHub Action runs tests, builds both Apple Silicon and Intel artifacts, signs them with Developer ID, notarizes them with Apple, staples the notarization ticket, and publishes the assets to GitHub Releases.
 
+If the signing secrets are incomplete, the workflow intentionally falls back to the unsigned release path instead of failing.
+
+## Updates
+
+CodexLens does not enable automatic in-app update installation for unsigned macOS builds.
+
+Reason: both Electron and electron-builder document that macOS automatic updates require a signed app. Unsigned builds can still publish release metadata, but the installed app should not rely on Squirrel.Mac/electron-updater to replace itself.
+
+Current behavior:
+
+- The app has a Settings button for opening the latest GitHub Release.
+- The menu bar context menu also includes `Check for Updates...`.
+- Users download and replace the app manually.
+
+Future signed behavior:
+
+- If Developer ID signing is added later, `electron-updater` can be introduced safely.
+- The existing `dmg` + `zip` targets and GitHub publish configuration are compatible with that future path.
+
 ## Verification
 
-After downloading a release asset, verify it on macOS:
+After downloading a signed release asset, verify it on macOS:
 
 ```bash
 codesign --verify --deep --strict --verbose=2 "/Applications/CodexLens.app"
@@ -102,8 +144,8 @@ brew install --cask codexlens
 
 ## 日本語メモ
 
-簡単かどうかで言うと、初回だけ面倒です。Apple Developer Program、Developer ID Application証明書、notarization用のApple IDまたはApp Store Connect API keyを用意し、GitHub Secretsに登録すれば、その後は `v*` タグをpushするだけで署名済みDMG/ZIPを公開できます。
+Apple Developer Programに入らなくても、未署名DMG/ZIPはGitHub Releasesへ公開できます。Secretsがない場合、Release workflowは失敗せず未署名リリースにフォールバックします。自動インストール型アップデートは署名済みmacOSアプリが前提なので、未署名運用では最新版Releaseを開く手動導線にしています。
 
 ## 中文备注
 
-整体流程不是每天都要手动做的工作。首次配置 Apple Developer Program、Developer ID Application 证书和 notarization 凭据比较麻烦；配置好 GitHub Secrets 后，推送 `v*` tag 即可自动生成签名并 notarize 的 macOS 发布包。
+即使不加入 Apple Developer Program，也可以通过 GitHub Releases 发布未签名的 DMG/ZIP。没有 Secrets 时，Release workflow 不会失败，而是回退到未签名发布。应用内自动安装更新在 macOS 上需要签名应用，因此未签名发布采用打开最新 GitHub Release 的手动更新方式。

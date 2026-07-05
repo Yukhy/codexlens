@@ -7,6 +7,7 @@ const { getSnapshot } = require('./observer');
 
 const APP_NAME = 'CodexLens';
 const TRAY_GUID = 'bfe88412-57a8-4122-b4dd-e66cc9d62c9c';
+const LATEST_RELEASE_URL = 'https://github.com/Yukhy/codexlens/releases/latest';
 
 let tray = null;
 let window = null;
@@ -78,6 +79,7 @@ function createTray() {
   tray.setToolTip(APP_NAME);
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: `Show ${APP_NAME}`, click: toggleWindow },
+    { label: 'Check for Updates...', click: () => shell.openExternal(LATEST_RELEASE_URL) },
     { type: 'separator' },
     { role: 'quit' }
   ]));
@@ -95,6 +97,11 @@ ipcMain.handle('observer:openPath', async (_event, targetPath) => {
 ipcMain.handle('observer:showItemInFolder', async (_event, targetPath) => {
   if (!targetPath || typeof targetPath !== 'string') return { ok: false, error: 'Invalid path' };
   shell.showItemInFolder(targetPath);
+  return { ok: true };
+});
+
+ipcMain.handle('observer:openLatestRelease', async () => {
+  await shell.openExternal(LATEST_RELEASE_URL);
   return { ok: true };
 });
 
