@@ -93,7 +93,7 @@ input {
 }
 
 button {
-  cursor: default;
+  cursor: pointer;
   user-select: none;
 }
 
@@ -548,7 +548,7 @@ h1 {
 .settings-head {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   padding: 12px;
 }
@@ -633,6 +633,16 @@ h1 {
   gap: 9px;
   margin-top: 8px;
   color: var(--text-primary);
+  cursor: pointer;
+}
+
+.toggle-row input {
+  cursor: pointer;
+}
+
+.toggle-row:has(input:disabled),
+.toggle-row input:disabled {
+  cursor: default;
 }
 
 .toggle-row input {
