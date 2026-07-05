@@ -1,9 +1,9 @@
 name: Release
 
+# Publishing a GitHub Release (UI or `gh release create`) is the release
+# trigger. A plain tag push is deliberately NOT a trigger: creating a release
+# in the UI also pushes the tag, which used to start the same build twice.
 on:
-  push:
-    tags:
-      - "v*"
   release:
     types: [published]
   workflow_dispatch:
