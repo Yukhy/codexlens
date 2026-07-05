@@ -66,12 +66,13 @@ CodexLens 不创建、不封装、不代理、也不替换任何 MCP server。**
 3. 启动后点击菜单栏中的镜头图标即可。
 
 > [!IMPORTANT]
-> 构建**未签名**（本项目有意不加入 Apple Developer Program），因此首次启动时 macOS 会弹出警告。
-> 请打开 **系统设置 → 隐私与安全性**，滚动到底部，点击 **"仍要打开"**；也可以在终端执行：
+> 构建**未经 Apple 公证**（本项目有意不加入 Apple Developer Program），因此首次启动时 macOS 会显示"无法验证开发者"或"已损坏，无法打开"等警告。**应用本身没有问题** —— 这是 Gatekeeper 对无法验证的下载的标准反应。任选一种方式解除：
 >
 > ```bash
 > xattr -cr /Applications/CodexLens.app
 > ```
+>
+> 或打开 **系统设置 → 隐私与安全性**，滚动到底部，点击 **"仍要打开"**。
 >
 > 此操作只需执行一次。每一个 DMG 都由 [GitHub Actions](.github/workflows/release.yml) 从本仓库构建，内容完全可审计。
 

@@ -1,6 +1,6 @@
 {
   "name": "codexlens",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Read-only macOS menu bar lens for local Codex and Claude Code activity.",
   "main": "src/main.js",
   "scripts": {
@@ -48,6 +48,7 @@
       "buildResources": "build",
       "output": "release"
     },
+    "afterPack": "scripts/adhoc-sign.js",
     "files": [
       "src/**/*",
       "README.md",

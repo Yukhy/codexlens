@@ -66,12 +66,13 @@ It creates, wraps, proxies, and replaces **nothing**. CodexLens only reads sessi
 3. Launch it and click the lens icon in your menu bar.
 
 > [!IMPORTANT]
-> CodexLens ships **unsigned** — this project intentionally doesn't join the Apple Developer Program. macOS will therefore warn once on first launch.
-> Go to **System Settings → Privacy & Security**, scroll down, and click **"Open Anyway"** — or run:
+> CodexLens ships **without Apple notarization** — this project intentionally doesn't join the Apple Developer Program. macOS will therefore block the first launch with a warning such as *"Apple could not verify…"* or *"CodexLens is damaged"*. The app is fine; this is Gatekeeper's standard reaction to downloads it can't verify. Pick either fix:
 >
 > ```bash
 > xattr -cr /Applications/CodexLens.app
 > ```
+>
+> …or open **System Settings → Privacy & Security**, scroll down, and click **"Open Anyway"**.
 >
 > This is a one-time step. Every DMG is built from this repository by [GitHub Actions](.github/workflows/release.yml), so you can audit exactly what goes into it.
 

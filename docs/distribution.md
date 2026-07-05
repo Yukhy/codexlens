@@ -12,7 +12,7 @@ Optional Apple Developer ID signing and notarization can be added later. Once th
 2. Create and export a `Developer ID Application` certificate.
 3. Create notarization credentials.
 4. Store those values as GitHub Actions secrets.
-5. Push a `v*` tag and let the release workflow build, sign, notarize, staple, and publish the DMG/ZIP assets.
+5. Publish a `v*` GitHub Release and let the release workflow build, sign, notarize, staple, and upload the DMG/ZIP assets.
 
 Apple requires Developer ID distribution outside the Mac App Store to use a Developer ID certificate and notarization. Electron tooling can automate the signing/notarization flow when configured.
 
@@ -57,7 +57,7 @@ gh release create v0.2.0 --title v0.2.0 --generate-notes
 
 When Apple signing/notarization secrets are absent, the workflow builds unsigned artifacts with electron-builder directly (equivalent to the local `npm run dist:mac:unsigned`, plus `--x64 --arm64`). It calls `npx electron-builder` rather than the npm script so that `workflow_dispatch` can also backfill assets for older tags whose `package.json` predates the current script names.
 
-It then uploads the DMG/ZIP assets with `gh release upload --clobber`, creating the release first only if it does not already exist. This is idempotent: it works whether the release was created by the tag push, by the GitHub web UI (as with v0.1.0), or by a previous partial run. Do not build with `--publish always`; electron-builder fails with `422 already_exists` when a published release for the tag already exists.
+It then uploads the DMG/ZIP assets with `gh release upload --clobber`, creating the release first only if it does not already exist. This is idempotent: it works whether the release was published from the GitHub web UI, by `gh release create`, or re-run after a previous partial run. Do not build with `--publish always`; electron-builder fails with `422 already_exists` when a published release for the tag already exists.
 
 Users may see macOS Gatekeeper warnings because the artifacts are not signed or notarized. The README documents the `Open Anyway` / `xattr -cr` workaround.
 

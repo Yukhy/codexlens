@@ -3,6 +3,17 @@
 All notable changes to CodexLens are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-07-05
+
+### Fixed
+
+- Downloaded DMGs no longer hit macOS's dead-end "CodexLens is damaged and can't be opened" dialog. Unsigned builds are now ad-hoc signed after packing (electron-builder previously left the bundle with a broken signature), so Gatekeeper shows the normal unverified-developer flow — System Settings → "Open Anyway" — and `xattr -cr` keeps working too.
+- The Release workflow now triggers only when a GitHub Release is published (or via manual dispatch), not on tag push. Creating a release from the UI fired both events and ran the same build twice.
+
+### Changed
+
+- README install notes describe the actual Gatekeeper dialogs ("could not verify" / "damaged") and lead with the `xattr -cr` one-liner.
+
 ## [0.2.0] - 2026-07-05
 
 ### Added
@@ -32,5 +43,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Terminal snapshot via `npm run scan`.
 - Unsigned macOS DMG/ZIP release pipeline with optional Developer ID signing.
 
+[0.2.1]: https://github.com/Yukhy/codexlens/compare/v0.1.1...v0.2.1
 [0.2.0]: https://github.com/Yukhy/codexlens/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Yukhy/codexlens/releases/tag/v0.1.0
