@@ -7,6 +7,8 @@ let textFilter = '';
 let refreshTimer = null;
 let language = localStorage.getItem('observer-language') || 'en';
 let currentView = 'runs';
+let appInfo = null;
+let updateCheck = { status: 'idle' };
 
 const ACTIVE_POLL_MS = 3000;
 const IDLE_POLL_MS = 15000;
@@ -31,10 +33,17 @@ const I18N = {
     noMatches: 'No runs match the current filter.',
     selectRun: 'Select a run to inspect local status.',
     settingsTitle: 'Settings',
-    settingsDescription: 'Choose how the observer is displayed.',
+    settingsDescription: 'Language and update preferences.',
     languageTitle: 'Language',
     updatesTitle: 'Updates',
-    updatesDescription: 'Open the latest GitHub Release to download a newer build.',
+    updatesDescription: 'Check whether a newer version is available on GitHub Releases.',
+    checkForUpdates: 'Check for updates',
+    checking: 'Checking…',
+    currentVersion: 'Current version',
+    upToDate: "You're up to date.",
+    updateAvailable: 'New version {version} is available.',
+    updateCheckFailed: 'Could not check for updates. Open GitHub Releases to check manually.',
+    download: 'Download',
     openLatestRelease: 'Open latest release',
     back: 'Back',
     status: 'Status',
@@ -63,28 +72,35 @@ const I18N = {
   },
   ja: {
     appTitle: 'CodexLens',
-    loading: 'ローカル活動を読み込み中',
-    updated: '更新',
-    refresh: '更新',
+    loading: 'ローカルアクティビティを読み込み中…',
+    updated: '最終更新',
+    refresh: '再読み込み',
     settings: '設定',
-    active: '稼働中',
-    stalled: '停止気味',
+    active: '実行中',
+    stalled: '停滞',
     failed: '失敗',
     mcpPids: 'MCP PID',
-    filterActive: '稼働中',
+    filterActive: '実行中',
     filterAttention: '要確認',
     filterCompleted: '完了',
     filterAll: 'すべて',
     filterPlaceholder: 'パス、ジョブ、呼び出し元で検索',
-    noRuns: '最近の Codex MCP 活動はありません。',
+    noRuns: '最近のCodex MCPアクティビティはありません。',
     noMatches: '現在のフィルターに一致するジョブはありません。',
-    selectRun: 'ジョブを選ぶとローカル状態を確認できます。',
+    selectRun: 'ジョブを選択すると詳細が表示されます。',
     settingsTitle: '設定',
-    settingsDescription: 'Observerの表示方法を選択します。',
+    settingsDescription: '言語やアップデートに関する設定です。',
     languageTitle: '言語',
     updatesTitle: 'アップデート',
-    updatesDescription: '最新版を入れる場合はGitHub Releaseを開いてダウンロードしてください。',
-    openLatestRelease: '最新版Releaseを開く',
+    updatesDescription: '新しいバージョンが公開されていないか確認できます。',
+    checkForUpdates: 'アップデートを確認',
+    checking: '確認中…',
+    currentVersion: '現在のバージョン',
+    upToDate: 'お使いのバージョンは最新です。',
+    updateAvailable: '新しいバージョン {version} が利用可能です。',
+    updateCheckFailed: '更新情報を取得できませんでした。GitHub Releases で直接ご確認ください。',
+    download: 'ダウンロード',
+    openLatestRelease: '最新リリースを開く',
     back: '戻る',
     status: '状態',
     job: 'ジョブ',
@@ -95,8 +111,8 @@ const I18N = {
     path: 'パス',
     branch: 'ブランチ',
     changed: '変更',
-    current: '現在',
-    updatedLabel: '更新',
+    current: '現在の処理',
+    updatedLabel: '最終更新',
     openRepo: 'リポジトリを開く',
     revealRollout: 'Rolloutを表示',
     openClaudeLog: 'Claudeログを開く',
@@ -108,12 +124,12 @@ const I18N = {
     sourceCodexApp: 'Codex App',
     sourceCodexSession: 'Codex session',
     ago: '前',
-    now: '今'
+    now: 'たった今'
   },
   zh: {
     appTitle: 'CodexLens',
-    loading: '正在读取本地活动',
-    updated: '已更新',
+    loading: '正在读取本地活动…',
+    updated: '更新于',
     refresh: '刷新',
     settings: '设置',
     active: '运行中',
@@ -127,12 +143,19 @@ const I18N = {
     filterPlaceholder: '按路径、任务、来源筛选',
     noRuns: '未发现最近的 Codex MCP 活动。',
     noMatches: '没有符合当前筛选条件的任务。',
-    selectRun: '选择一个任务查看本地状态。',
+    selectRun: '选择任务以查看详情。',
     settingsTitle: '设置',
-    settingsDescription: '选择观察器的显示方式。',
+    settingsDescription: '语言与更新相关设置。',
     languageTitle: '语言',
     updatesTitle: '更新',
-    updatesDescription: '打开最新的 GitHub Release 下载新版构建。',
+    updatesDescription: '检查 GitHub Releases 上是否有新版本。',
+    checkForUpdates: '检查更新',
+    checking: '正在检查…',
+    currentVersion: '当前版本',
+    upToDate: '当前已是最新版本。',
+    updateAvailable: '发现新版本 {version}。',
+    updateCheckFailed: '无法获取更新信息，请前往 GitHub Releases 手动查看。',
+    download: '下载',
     openLatestRelease: '打开最新 Release',
     back: '返回',
     status: '状态',
@@ -144,8 +167,8 @@ const I18N = {
     path: '路径',
     branch: '分支',
     changed: '变更',
-    current: '当前',
-    updatedLabel: '更新',
+    current: '当前事件',
+    updatedLabel: '最后活动',
     openRepo: '打开仓库',
     revealRollout: '显示 Rollout',
     openClaudeLog: '打开 Claude 日志',
@@ -157,7 +180,7 @@ const I18N = {
     sourceCodexApp: 'Codex App',
     sourceCodexSession: 'Codex session',
     ago: '前',
-    now: '现在'
+    now: '刚刚'
   }
 };
 
@@ -177,12 +200,12 @@ const STATUS_LABELS = {
   },
   ja: {
     starting: '開始中',
-    running: '稼働中',
+    running: '実行中',
     editing: '編集中',
-    tooling: 'ツール実行',
+    tooling: 'ツール実行中',
     thinking: '思考中',
-    idle: '待機',
-    stalled: '停止気味',
+    idle: '待機中',
+    stalled: '停滞',
     completed: '完了',
     failed: '失敗',
     lost: '消失',
@@ -192,19 +215,26 @@ const STATUS_LABELS = {
     starting: '启动中',
     running: '运行中',
     editing: '编辑中',
-    tooling: '工具中',
+    tooling: '调用工具中',
     thinking: '思考中',
     idle: '空闲',
     stalled: '停滞',
     completed: '已完成',
     failed: '失败',
-    lost: '丢失',
+    lost: '已丢失',
     unknown: '未知'
   }
 };
 
 function t(key) {
   return (I18N[language] && I18N[language][key]) || I18N.en[key] || key;
+}
+
+function formatT(key, values = {}) {
+  return Object.entries(values).reduce(
+    (text, [name, value]) => text.replace(`{${name}}`, value == null ? '' : String(value)),
+    t(key)
+  );
 }
 
 function statusLabel(status) {
@@ -224,6 +254,9 @@ const elements = {
   backToRuns: document.getElementById('back-to-runs'),
   appViews: Array.from(document.querySelectorAll('.app-view')),
   settingsView: document.getElementById('settings-view'),
+  currentVersion: document.getElementById('current-version'),
+  checkForUpdates: document.getElementById('check-for-updates'),
+  updateStatus: document.getElementById('update-status'),
   openLatestRelease: document.getElementById('open-latest-release'),
   filterButtons: Array.from(document.querySelectorAll('.filter-button')),
   runFilter: document.getElementById('run-filter'),
@@ -338,6 +371,41 @@ function renderView() {
   elements.settingsView.classList.toggle('hidden', !showingSettings);
   elements.refresh.classList.toggle('hidden', showingSettings);
   elements.settings.classList.toggle('hidden', showingSettings);
+}
+
+function renderUpdateStatus() {
+  elements.currentVersion.textContent = appInfo?.version || '—';
+  elements.checkForUpdates.disabled = updateCheck.status === 'checking';
+  elements.updateStatus.className = `update-status update-status-${updateCheck.status}`;
+  elements.updateStatus.replaceChildren();
+
+  if (updateCheck.status === 'idle') {
+    elements.updateStatus.classList.add('hidden');
+    return;
+  }
+
+  elements.updateStatus.classList.remove('hidden');
+  const message = document.createElement('p');
+  if (updateCheck.status === 'checking') {
+    message.textContent = t('checking');
+  } else if (updateCheck.status === 'up-to-date') {
+    message.textContent = t('upToDate');
+  } else if (updateCheck.status === 'available') {
+    message.textContent = formatT('updateAvailable', { version: updateCheck.latestVersion });
+  } else {
+    message.textContent = t('updateCheckFailed');
+  }
+  elements.updateStatus.appendChild(message);
+
+  if (updateCheck.status === 'available') {
+    elements.updateStatus.appendChild(
+      button(t('download'), () => window.observer.openExternal(updateCheck.releaseUrl), !updateCheck.releaseUrl)
+    );
+  } else if (updateCheck.status === 'failed') {
+    elements.updateStatus.appendChild(
+      button(t('openLatestRelease'), () => window.observer.openLatestRelease())
+    );
+  }
 }
 
 function applyTranslations() {
@@ -502,9 +570,25 @@ function render() {
   setText(elements.failedCount, summary.failed || 0);
   setText(elements.processCount, summary.codexMcpProcesses || 0);
   renderFilterButtons();
+  renderUpdateStatus();
   renderRunList();
   const selected = filteredRuns().find((run) => run.id === selectedId) || null;
   renderDetail(selected);
+}
+
+async function loadAppInfo() {
+  try {
+    appInfo = await window.observer.getAppInfo();
+  } catch (_error) {
+    appInfo = null;
+  }
+  renderUpdateStatus();
+}
+
+function openSettingsView() {
+  currentView = 'settings';
+  render();
+  loadAppInfo();
 }
 
 function shouldPollFast() {
@@ -535,16 +619,37 @@ async function refresh() {
 }
 
 elements.refresh.addEventListener('click', refresh);
-elements.settings.addEventListener('click', () => {
-  currentView = 'settings';
-  render();
-});
+elements.settings.addEventListener('click', openSettingsView);
 elements.backToRuns.addEventListener('click', () => {
   currentView = 'runs';
   render();
 });
 elements.openLatestRelease.addEventListener('click', () => {
   window.observer.openLatestRelease();
+});
+elements.checkForUpdates.addEventListener('click', async () => {
+  updateCheck = { status: 'checking' };
+  renderUpdateStatus();
+  try {
+    const result = await window.observer.checkForUpdates();
+    if (!result?.ok) {
+      appInfo = { version: result?.currentVersion || appInfo?.version };
+      updateCheck = { status: 'failed', error: result?.error };
+    } else if (result.updateAvailable) {
+      appInfo = { version: result.currentVersion };
+      updateCheck = {
+        status: 'available',
+        latestVersion: result.latestVersion,
+        releaseUrl: result.releaseUrl
+      };
+    } else {
+      appInfo = { version: result.currentVersion };
+      updateCheck = { status: 'up-to-date', latestVersion: result.latestVersion };
+    }
+  } catch (error) {
+    updateCheck = { status: 'failed', error: error?.message || String(error) };
+  }
+  renderUpdateStatus();
 });
 for (const button of elements.filterButtons) {
   button.addEventListener('click', () => {
@@ -565,5 +670,6 @@ for (const button of elements.languageButtons) {
     render();
   });
 }
+window.observer.onShowSettings?.(openSettingsView);
 applyTranslations();
 refresh();

@@ -48,7 +48,7 @@
         <div class="settings-head">
           <div>
             <h2 data-i18n="settingsTitle">Settings</h2>
-            <p data-i18n="settingsDescription">Choose how the observer is displayed.</p>
+            <p data-i18n="settingsDescription">Language and update preferences.</p>
           </div>
           <button id="back-to-runs" class="secondary-button" type="button" data-i18n="back">Back</button>
         </div>
@@ -73,8 +73,13 @@
 
         <div class="settings-section">
           <h3 data-i18n="updatesTitle">Updates</h3>
-          <p class="settings-copy" data-i18n="updatesDescription">Open the latest GitHub Release to download a newer build.</p>
-          <button id="open-latest-release" class="secondary-button" type="button" data-i18n="openLatestRelease">Open latest release</button>
+          <p class="settings-copy" data-i18n="updatesDescription">Check whether a newer version is available on GitHub Releases.</p>
+          <p class="version-line"><span data-i18n="currentVersion">Current version</span>: <span id="current-version">—</span></p>
+          <div class="update-actions">
+            <button id="check-for-updates" class="primary-button" type="button" data-i18n="checkForUpdates">Check for updates</button>
+            <button id="open-latest-release" class="secondary-button" type="button" data-i18n="openLatestRelease">Open latest release</button>
+          </div>
+          <div id="update-status" class="update-status hidden" aria-live="polite"></div>
         </div>
       </section>
     </main>
