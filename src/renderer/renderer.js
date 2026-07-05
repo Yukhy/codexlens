@@ -1,5 +1,9 @@
 'use strict';
 
+if (new URLSearchParams(location.search).get('vibrancy') === '1') {
+  document.documentElement.classList.add('vibrancy');
+}
+
 let snapshot = null;
 let selectedId = null;
 let statusFilter = 'active';

@@ -38,7 +38,8 @@ function createWindow() {
     movable: true,
     fullscreenable: false,
     skipTaskbar: true,
-    backgroundColor: '#f7f4ed',
+    vibrancy: 'popover',
+    visualEffectState: 'active',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -47,8 +48,13 @@ function createWindow() {
     }
   });
 
-  window.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  window.loadFile(path.join(__dirname, 'renderer', 'index.html'), { query: { vibrancy: '1' } });
+  const keepVisibleForDev = process.env.CODEXLENS_SHOW_WINDOW === '1';
+  if (keepVisibleForDev) {
+    window.show();
+  }
   window.on('blur', () => {
+    if (keepVisibleForDev) return;
     if (!window.webContents.isDevToolsOpened()) window.hide();
   });
 }
