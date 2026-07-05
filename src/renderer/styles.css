@@ -164,8 +164,8 @@ h1 {
 
 .icon-button {
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   display: inline-grid;
   place-items: center;
   border: 0;
@@ -173,7 +173,7 @@ h1 {
   background: transparent;
   color: var(--text-secondary);
   padding: 0;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -181,6 +181,12 @@ h1 {
   width: 24px;
   height: 24px;
   font-size: 14px;
+}
+
+/* The gear glyph (U+2699) has less ink than the refresh arrow at the same
+   font size, so it gets one extra step to look optically equal. */
+#settings {
+  font-size: 21px;
 }
 
 .icon-button:hover:not(:disabled) {
@@ -347,8 +353,6 @@ h1 {
 }
 
 .run-card {
-  --status-color: var(--gray);
-  --status-tint: var(--gray-tint);
   appearance: none;
   position: relative;
   width: 100%;
@@ -358,20 +362,11 @@ h1 {
   color: var(--text-primary);
   padding: 9px 10px 8px;
   text-align: left;
+  cursor: pointer;
   transition:
     background-color 120ms ease,
     border-color 120ms ease,
     box-shadow 120ms ease;
-}
-
-.run-card::before {
-  content: "";
-  position: absolute;
-  inset: 9px auto 9px 0;
-  width: 3px;
-  border-radius: 0 2px 2px 0;
-  background: var(--status-color);
-  opacity: 0.92;
 }
 
 .run-card:hover {
@@ -383,35 +378,6 @@ h1 {
   border-color: var(--accent-hairline);
   background: var(--accent-tint);
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.05) inset;
-}
-
-.run-card-running,
-.run-card-tooling,
-.run-card-editing,
-.run-card-starting {
-  --status-color: var(--accent);
-  --status-tint: var(--accent-tint);
-}
-
-.run-card-thinking {
-  --status-color: var(--accent);
-  --status-tint: var(--accent-tint);
-}
-
-.run-card-idle,
-.run-card-stalled {
-  --status-color: var(--orange);
-  --status-tint: var(--orange-tint);
-}
-
-.run-card-failed {
-  --status-color: var(--red);
-  --status-tint: var(--red-tint);
-}
-
-.run-card-completed {
-  --status-color: var(--green);
-  --status-tint: var(--green-tint);
 }
 
 .run-head {
