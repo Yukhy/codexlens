@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "open:mac": "open -n -a \"$PWD/node_modules/electron/dist/Electron.app\" --args \"$PWD\"",
+    "screenshots": "electron scripts/capture-screenshots.js",
     "scan": "node src/cli.js",
     "test": "node --test test/*.test.js"
   },
