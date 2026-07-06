@@ -10,6 +10,7 @@
     "dist:mac:unsigned": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg zip --publish never --config.mac.identity=null --config.mac.notarize=false",
     "screenshots": "electron scripts/capture-screenshots.js",
     "scan": "node src/cli.js",
+    "lint": "biome check .",
     "test": "node --test test/*.test.js"
   },
   "keywords": [
@@ -93,6 +94,7 @@
     ]
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
     "electron": "^39.2.7",
     "electron-builder": "^26.15.3"
   }

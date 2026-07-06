@@ -55,6 +55,10 @@ function findBestClaudeCall(session, calls) {
   return best;
 }
 
+function findDelegationRun(session, delegationRuns = []) {
+  return delegationRuns.find((run) => run.thread_id && run.thread_id === session.id) || null;
+}
+
 function statusForSession(session, options = {}) {
   const nowMs = options.nowMs || Date.now();
   const idleMs = options.idleMs || DEFAULT_IDLE_MS;
@@ -78,9 +82,15 @@ function eventCountTotal(counts) {
 }
 
 function observedRunFromSession(session, calls, repoInfo, options = {}) {
-  const match = findBestClaudeCall(session, calls);
+  const delegationRun = findDelegationRun(session, options.delegationRuns);
+  const match = delegationRun
+    ? { call: null, confidence: 'high', reason: 'delegation run registry' }
+    : findBestClaudeCall(session, calls);
   const status = statusForSession(session, options);
-  const source = match.call ? 'official-codex-mcp' : `codex-${session.source || 'session'}`;
+  const source = delegationRun
+    ? 'delegation-run-registry'
+    : match.call ? 'official-codex-mcp' : `codex-${session.source || 'session'}`;
+  const repoPath = session.cwd || delegationRun?.repo || null;
 
   return {
     id: session.id,
@@ -88,9 +98,13 @@ function observedRunFromSession(session, calls, repoInfo, options = {}) {
     status,
     confidence: match.confidence,
     matchReason: match.reason,
+    task_slug: delegationRun?.task_slug || null,
+    sandbox: delegationRun?.sandbox || null,
+    registryStatus: delegationRun?.status || null,
+    delegationRun,
     codex: session,
     claude: match.call,
-    repo: repoInfo || { path: session.cwd || null, branch: null, modifiedFiles: null, isGitRepo: false },
+    repo: repoInfo || { path: repoPath, branch: null, modifiedFiles: null, isGitRepo: false },
     progress: {
       lastActivityAtMs: session.updatedAtMs,
       currentKind: session.lastPayloadType || 'unknown',
@@ -151,7 +165,9 @@ function buildSummary(runs, processes) {
 function correlateRuns(codexSessions, claudeCalls, repoInfoByCwd = new Map(), processes = [], options = {}) {
   const usedCallIds = new Set();
   const runs = codexSessions.map((session) => {
-    const repoInfo = session.cwd ? repoInfoByCwd.get(normalizePath(session.cwd)) : null;
+    const delegationRun = findDelegationRun(session, options.delegationRuns);
+    const repoPath = session.cwd || delegationRun?.repo || null;
+    const repoInfo = repoPath ? repoInfoByCwd.get(normalizePath(repoPath)) : null;
     const run = observedRunFromSession(session, claudeCalls, repoInfo, options);
     if (run.claude) usedCallIds.add(run.claude.id);
     return run;
@@ -170,6 +186,7 @@ function correlateRuns(codexSessions, claudeCalls, repoInfoByCwd = new Map(), pr
 
 module.exports = {
   correlateRuns,
+  findDelegationRun,
   findBestClaudeCall,
   statusForSession,
   samePath

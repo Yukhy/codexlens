@@ -67,3 +67,36 @@ test('correlateRuns includes unmatched active Claude tool calls as starting runs
   assert.equal(result.runs[0].status, 'starting');
   assert.equal(result.summary.active, 1);
 });
+
+test('correlateRuns prefers delegation registry thread matches over heuristics', () => {
+  const result = correlateRuns(
+    [session({ id: 'thread-registered', cwd: '/repo-a' })],
+    [call({
+      id: 'toolu_other',
+      inputCwd: '/repo-a',
+      cwd: '/repo-a',
+      codexThreadId: null,
+      startedAtMs: 1000,
+      completedAtMs: 3000
+    })],
+    new Map(),
+    [],
+    {
+      nowMs: 4000,
+      delegationRuns: [{
+        task_slug: 'task-one',
+        sandbox: 'workspace-write',
+        status: 'completed',
+        thread_id: 'thread-registered'
+      }]
+    }
+  );
+
+  assert.equal(result.runs.length, 1);
+  assert.equal(result.runs[0].confidence, 'high');
+  assert.equal(result.runs[0].matchReason, 'delegation run registry');
+  assert.equal(result.runs[0].task_slug, 'task-one');
+  assert.equal(result.runs[0].sandbox, 'workspace-write');
+  assert.equal(result.runs[0].registryStatus, 'completed');
+  assert.equal(result.runs[0].claude, null);
+});
