@@ -6,6 +6,7 @@ const path = require('node:path');
 const { listClaudeCodexToolCalls } = require('./claude');
 const { listCodexSessions, listCodexSessionIndex } = require('./codex');
 const { correlateRuns } = require('./correlate');
+const { listDelegationRuns } = require('./delegation');
 const { listAgentProcesses } = require('./processes');
 const { getRepoInfo } = require('./repo');
 
@@ -14,11 +15,12 @@ async function getSnapshot(options = {}) {
   const nowMs = options.nowMs || Date.now();
   const lookbackMs = options.lookbackMs || 24 * 60 * 60 * 1000;
 
-  const [rawCodexSessions, claudeCalls, processes, sessionIndex] = await Promise.all([
+  const [rawCodexSessions, claudeCalls, processes, sessionIndex, delegationRuns] = await Promise.all([
     listCodexSessions({ home, nowMs, lookbackMs, limit: options.codexLimit || 120 }),
     listClaudeCodexToolCalls({ home, nowMs, lookbackMs, limit: options.claudeLimit || 120 }),
     listAgentProcesses(),
-    listCodexSessionIndex({ home })
+    listCodexSessionIndex({ home }),
+    listDelegationRuns({ home, runsDir: options.runsDir })
   ]);
 
   const indexById = new Map(sessionIndex.map((item) => [item.id, item]));
@@ -32,6 +34,9 @@ async function getSnapshot(options = {}) {
     const cwd = call.inputCwd || call.cwd;
     if (cwd) cwdSet.add(path.resolve(cwd));
   }
+  for (const run of delegationRuns) {
+    if (run.repo) cwdSet.add(path.resolve(run.repo));
+  }
 
   const repoInfoByCwd = new Map();
   await Promise.all(Array.from(cwdSet).slice(0, 20).map(async (cwd) => {
@@ -42,13 +47,15 @@ async function getSnapshot(options = {}) {
     nowMs,
     idleMs: options.idleMs,
     stalledMs: options.stalledMs,
-    lostMs: options.lostMs
+    lostMs: options.lostMs,
+    delegationRuns
   });
 
   return {
     generatedAt: new Date(nowMs).toISOString(),
     home,
     runs,
+    delegationRuns,
     processes,
     sessionIndex: sessionIndex.slice(0, 30),
     summary

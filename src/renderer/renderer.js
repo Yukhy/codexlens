@@ -60,6 +60,9 @@ const I18N = {
     job: 'Job',
     invokedBy: 'Invoked by',
     source: 'Source',
+    taskSlug: 'Task',
+    sandbox: 'Sandbox',
+    registryStatus: 'Registry',
     codexId: 'Codex ID',
     claude: 'Claude',
     path: 'Path',
@@ -77,6 +80,7 @@ const I18N = {
     sourceCodexMcp: 'Codex MCP',
     sourceCodexApp: 'Codex App',
     sourceCodexSession: 'Codex session',
+    sourceDelegationRegistry: 'Delegation registry',
     ago: 'ago',
     now: 'now'
   },
@@ -120,6 +124,9 @@ const I18N = {
     job: 'ジョブ',
     invokedBy: '呼び出し元',
     source: 'ソース',
+    taskSlug: 'タスク',
+    sandbox: 'サンドボックス',
+    registryStatus: 'Registry',
     codexId: 'Codex ID',
     claude: 'Claude',
     path: 'パス',
@@ -137,6 +144,7 @@ const I18N = {
     sourceCodexMcp: 'Codex MCP',
     sourceCodexApp: 'Codex App',
     sourceCodexSession: 'Codex session',
+    sourceDelegationRegistry: 'Delegation registry',
     ago: '前',
     now: 'たった今'
   },
@@ -180,6 +188,9 @@ const I18N = {
     job: '任务',
     invokedBy: '调用来源',
     source: '来源',
+    taskSlug: '任务',
+    sandbox: '沙盒',
+    registryStatus: 'Registry',
     codexId: 'Codex ID',
     claude: 'Claude',
     path: '路径',
@@ -197,6 +208,7 @@ const I18N = {
     sourceCodexMcp: 'Codex MCP',
     sourceCodexApp: 'Codex App',
     sourceCodexSession: 'Codex session',
+    sourceDelegationRegistry: 'Delegation registry',
     ago: '前',
     now: '刚刚'
   }
@@ -245,7 +257,7 @@ const STATUS_LABELS = {
 };
 
 function t(key) {
-  return (I18N[language] && I18N[language][key]) || I18N.en[key] || key;
+  return I18N[language]?.[key] || I18N.en[key] || key;
 }
 
 function formatT(key, values = {}) {
@@ -256,7 +268,7 @@ function formatT(key, values = {}) {
 }
 
 function statusLabel(status) {
-  return (STATUS_LABELS[language] && STATUS_LABELS[language][status]) || STATUS_LABELS.en[status] || status;
+  return STATUS_LABELS[language]?.[status] || STATUS_LABELS.en[status] || status;
 }
 
 const elements = {
@@ -305,7 +317,7 @@ function relTime(ms) {
 
 function shortPath(value) {
   if (!value) return t('unknown');
-  const home = snapshot && snapshot.home;
+  const home = snapshot?.home;
   const text = home && value.startsWith(home) ? `~${value.slice(home.length)}` : value;
   return text.length > 68 ? `${text.slice(0, 32)}…${text.slice(-32)}` : text;
 }
@@ -322,6 +334,7 @@ function makeBadge(status) {
 }
 
 function invocationLabel(run) {
+  if (run.source === 'delegation-run-registry') return t('sourceDelegationRegistry');
   if (run.claude?.toolName?.startsWith('mcp__codex__')) return t('sourceClaudeMcp');
   const source = run.codex?.source || run.source || '';
   const originator = run.codex?.originator || '';
@@ -333,10 +346,11 @@ function invocationLabel(run) {
 }
 
 function pathForRun(run) {
-  return run.repo?.path || run.codex?.cwd || run.claude?.inputCwd || run.claude?.cwd || null;
+  return run.repo?.path || run.codex?.cwd || run.delegationRun?.repo || run.claude?.inputCwd || run.claude?.cwd || null;
 }
 
 function titleForRun(run) {
+  if (run.task_slug) return run.task_slug;
   if (run.codex?.threadName) return run.codex.threadName;
   if (run.claude?.toolName) return run.claude.toolName.replace('mcp__codex__', 'Codex ');
   const current = run.progress?.currentLabel;
@@ -360,6 +374,7 @@ function textMatches(run) {
     pathForRun(run),
     invocationLabel(run),
     run.status,
+    run.task_slug,
     run.progress?.currentLabel,
     run.id
   ].filter(Boolean).join(' ').toLowerCase();
@@ -568,6 +583,9 @@ function renderDetail(run) {
   row(dl, t('job'), titleForRun(run));
   row(dl, t('invokedBy'), invocationLabel(run));
   row(dl, t('source'), run.source);
+  row(dl, t('taskSlug'), run.task_slug);
+  row(dl, t('sandbox'), run.sandbox);
+  row(dl, t('registryStatus'), run.registryStatus);
   row(dl, t('codexId'), run.codex?.id);
   row(dl, t('claude'), run.claude?.sessionId);
   row(dl, t('path'), shortPath(pathForRun(run)));

@@ -19,6 +19,10 @@ function repoLabel(run) {
   return truncateMiddle(value, 52);
 }
 
+function taskLabel(run) {
+  return run.task_slug ? ` ${truncateMiddle(run.task_slug, 28)}` : '';
+}
+
 async function main() {
   const snapshot = await getSnapshot();
   console.log(`CodexLens snapshot @ ${snapshot.generatedAt}`);
@@ -33,7 +37,7 @@ async function main() {
   for (const run of snapshot.runs.slice(0, 20)) {
     const updated = relTime(run.progress.lastActivityAtMs);
     const id = truncateMiddle(run.id, 18);
-    console.log(`${run.status.padEnd(10)} ${updated.padStart(5)} ${id.padEnd(18)} ${repoLabel(run)}`);
+    console.log(`${run.status.padEnd(10)} ${updated.padStart(5)} ${id.padEnd(18)} ${repoLabel(run)}${taskLabel(run)}`);
     console.log(`  ${run.progress.currentLabel} | ${run.matchReason}`);
   }
 }
